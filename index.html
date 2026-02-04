@@ -63,7 +63,7 @@
     #start-layer {
       z-index: 50;
       background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)),
-        url("Assets/Image 1.png"); /* Using UKM image as default BG for start if valid */
+        url("Assets/Image 1.png");
       background-size: cover;
       background-position: center;
       display: flex;
@@ -717,23 +717,31 @@
  </div>
 
 <script>
-
 /* --- ASSETS --- */
 const IMG = {
   uni: "Assets/Image 1.png",
   highway: "Assets/Image 2.png",
   resort: "Assets/Image 3.png",
-  village: "Assets/Image 4.png",
+  village: "Assets/Image 4.png",   
   morning: "Assets/Image 5.png",
   lotus: "Assets/Image 6.png",
   jungle: "Assets/Image 7.png",
-  packing: "Assets/Image 8.png",
+  packing: "Assets/Image 32.png",
   boat: "Assets/Image 14.png",
+  lakeview: "Assets/Image 26.png",
+  forestentry: "Assets/Image 27.png",
+  wildlife: "Assets/Image 28.png",
+  gate: "Assets/Image 29.png",
+  bioexit: "Assets/Image 30.png",
+
   
-  puz_items: "Assets/Image 8.png",
+  puz_notebook: "Assets/Image 8.png",
+  puz_gel: "Assets/Image 33.png",
   puz_bus: "Assets/Image 9.png",
+  puz_segforest: "Assets/Image 34.png",
   puz_compass: "Assets/Image 10.png",
   puz_tech: "Assets/Image 11.png",
+  puz_weather: "Assets/Image 35.png",
   puz_weave: "Assets/Image 12.png",
   puz_blowpipe: "Assets/Image 13.png",
   puz_engine: "Assets/Image 15.png",
@@ -742,166 +750,204 @@ const IMG = {
   puz_lake: "Assets/Image 18.png",
   puz_formation: "Assets/Image 19.png",
   puz_math: "Assets/Image 20.png",
-  puz_schedule: "Assets/Image 20.png"
+  puz_items:"Assets/Image 23.png",
+  puz_glass:"Assets/Image 24.png",
+  puz_cleanboot:"Assets/Image 25.png",
+  puz_torchlight:"Assets/Image 31.png",
+  puz_lifejacket:"Assets/Image 36.png",
+  puz_rinse:"Assets/Image 37.png",
+  puz_premission:"Assets/Image 38.png",
+  puz_observe:"Assets/Image 39.png",
+  puz_wash:"Assets/Image 40.png",
 };
 
 /* --- STORY (20 PUZZLES + HINTS + 2 ENDINGS) --- */
 const SCENES = [
   { type: "collection", text: "Collect 5 Coins to fund your trip!", bg: IMG.uni },
-
   { type: "dialogue", speaker: "Scholar", text: "We have funds! 2:00 PM. UKM. The sun beats down on the pavement.", bg: IMG.uni },
   { type: "dialogue", speaker: "Scholar", text: "Before we leave, we must pack properly. Research is useless without good preparation.", bg: IMG.packing },
 
-  { type: "puzzle", title: "001: The Essential Item", text: "Which item is crucial for recording scientific findings?", img: IMG.puz_items,
+  /* Puzzle 001 */
+  { type: "puzzle", title: "001: The Essential Item", text: "Which item is crucial for recording scientific findings?", img: IMG.puz_notebook,
     hints: ["Think: how do scientists capture observations during fieldwork?","It’s for writing data, not entertainment or comfort.","Answer: Field Notebook."],
     choices: [{ text: "GameBoy", correct:false },{ text: "Field Notebook", correct:true },{ text: "Pillow", correct:false }]
   },
+  { type: "dialogue", speaker: "Scholar", text: "Correct. Now, we may arrive late. It could be dark.", bg: IMG.uni },
 
-  { type: "dialogue", speaker: "Scholar", text: "Correct. Now, we may arrive late. It could be dark.", bg: IMG.packing },
-
-  { type: "puzzle", title: "002: The Night Tool", text: "Tasik Chini can be very dark at night. What do you need?", img: IMG.puz_items,
+  /* Puzzle 002 */
+  { type: "puzzle", title: "002: The Night Tool", text: "Tasik Chini can be very dark at night. What do you need?", img: IMG.puz_torchlight,
     hints: ["What helps you see in the dark without relying on streetlights?","It’s a handheld light source used in camping.","Answer: Torchlight."],
     choices: [{ text: "Sunglasses", correct:false },{ text: "Torchlight", correct:true },{ text: "Sunscreen", correct:false }]
   },
 
   { type: "dialogue", speaker: "Scholar", text: "We also need to protect the research equipment from humidity.", bg: IMG.packing },
 
-  { type: "puzzle", title: "003: Humidity Protection", text: "Which item best protects electronics from moisture?", img: IMG.puz_items,
+  /* Puzzle 003 */
+  { type: "puzzle", title: "003: Humidity Protection", text: "Which item best protects electronics from moisture?", img: IMG.puz_gel,
     hints: ["Think of the tiny packets found in shoeboxes and camera bags.","They absorb moisture from the air.","Answer: Silica gel packets."],
     choices: [{ text: "Silica gel packets", correct:true },{ text: "Paper tissues", correct:false },{ text: "Extra shoelaces", correct:false }]
   },
 
-  { type: "dialogue", speaker: "Scholar", text: "And we must plan ethically—nature is not our playground.", bg: IMG.packing },
+  { type: "dialogue", speaker: "Scholar", text: "We must plan ethically—and also respect the people who live near the lake.", bg: IMG.village },
 
-  { type: "puzzle", title: "004: Leave No Trace", text: "Which action follows responsible fieldwork ethics?", img: IMG.puz_items,
-    hints: ["The best choice minimizes long-term impact on the environment.","Don’t leave anything behind that wasn’t already there.","Answer: Pack out all trash, leave nothing behind."],
-    choices: [{ text: "Collect plants as souvenirs", correct:false },{ text: "Pack out all trash, leave nothing behind", correct:true },{ text: "Feed wildlife to get photos", correct:false }]
+  /* Puzzle 004 */
+  { type: "puzzle", title: "004: Indigenous Tools & Respect", text: "A traditional blowpipe is displayed in the village. What is the most respectful action?", img: IMG.puz_blowpipe,
+    hints: ["Respect begins with consent.","Cultural items are not props for tourists.","Answer: Ask permission before touching or photographing."],
+    choices: [
+      { text: "Take it and test it as a souvenir", correct:false },
+      { text: "Ask permission before touching or photographing", correct:true },
+      { text: "Mock it and call it outdated", correct:false }
+    ]
   },
 
-  { type: "gate", title: "Bus Fare", cost: 10, msg: "Pay the driver to board the bus.", bg: IMG.uni },
-
+  /* Gate uses gate image */
+  { type: "gate", title: "Bus Fare", cost: 10, msg: "Pay the driver to board the bus.", bg: IMG.gate },
   { type: "dialogue", speaker: "Dr. Zurina", text: "Good. Help load the bus. There is a safe order so nothing breaks.", bg: IMG.uni },
 
+  /* Puzzle 005 */
   { type: "puzzle", title: "005: The Luggage Stack", text: "Heavy Trunks, Bags, Fragile Items. Heavy at bottom. Fragile on top. Order?", img: IMG.puz_bus,
     hints: ["Apply the rule: heavy supports, fragile is protected.","Middle layer should be something softer than trunks.","Answer: Heavy, Bags, Fragile."],
     choices: [{ text: "Fragile, Heavy, Bags", correct:false },{ text: "Bags, Fragile, Heavy", correct:false },{ text: "Heavy, Bags, Fragile", correct:true }]
   },
 
   { type: "dialogue", speaker: "Narrator", text: "(3:00 PM: The bus departs. The city fades into palm oil plantations.)", bg: IMG.highway },
-
   { type: "dialogue", speaker: "Scholar", text: "Look at the landscape changes. Habitat fragmentation affects biodiversity.", bg: IMG.highway },
 
-  { type: "puzzle", title: "006: Habitat Fragmentation", text: "What is a major risk of fragmented forests?", img: IMG.puz_path,
+  /* Puzzle 006 */
+  { type: "puzzle", title: "006: Habitat Fragmentation", text: "What is a major risk of fragmented forests?", img: IMG.puz_segforest,
     hints: ["Separated habitats reduce movement between groups.","Small isolated groups can lose genetic variety over time.","Answer: Isolated populations and reduced genetic diversity."],
     choices: [{ text: "More continuous habitat for wildlife", correct:false },{ text: "Isolated populations and reduced genetic diversity", correct:true },{ text: "Instant recovery of endangered species", correct:false }]
   },
 
-  { type: "dialogue", speaker: "Scholar", text: "We should log our route and timestamps for research reproducibility.", bg: IMG.highway },
-
-  { type: "puzzle", title: "007: Reproducibility", text: "Which detail best supports reproducible field research?", img: IMG.puz_items,
-    hints: ["Future researchers need the exact ‘where’ and ‘when’.","A location tag plus time is stronger than a vague description.","Answer: Exact time + GPS location of observations."],
-    choices: [{ text: "Exact time + GPS location of observations", correct:true },{ text: "Only writing conclusions", correct:false },{ text: "Skipping 'boring' measurements", correct:false }]
+  { type: "dialogue", speaker: "Narrator", text: "(8:30 PM: A village stop near Tasik Chini. Local knowledge matters.)", bg: IMG.village },
+  { type: "dialogue", speaker: "Guide", text: "Welcome. We calibrate our tools before we rely on measurements—especially under the sun.", bg: IMG.village },
+  
+  /* Puzzle 007 */  
+  { type: "puzzle", title: "007: Solar Calibration", text: "This device aligns measurements using a reference direction. What is it mainly used for?", img: IMG.puz_tech,
+    hints: ["Calibration ensures readings match reality, not guesswork.","It helps align direction/angles before recording data.","Answer: Calibrating direction/angle measurements for accurate readings."],
+    choices: [
+      { text: "Making coffee faster", correct:false },
+      { text: "Calibrating direction/angle measurements for accurate readings", correct:true },
+      { text: "Measuring your shoe size", correct:false }
+    ]
   },
 
-  { type: "gate", title: "Check-In", cost: 0, itemReq: "optional", msg: "Reception checks your travel log (Optional for best ending).", bg: IMG.resort },
-
+  /* Gate: use gate bg instead of resort */
+  { type: "gate", title: "Check-In", cost: 0, itemReq: "optional", msg: "Reception checks your travel log (Optional for best ending).", bg: IMG.gate },
   { type: "dialogue", speaker: "Narrator", text: "(10:00 PM: Arrival. The air is thick with humidity.)", bg: IMG.resort },
-
   { type: "dialogue", speaker: "Scholar", text: "Before sleep, we should back up today’s notes.", bg: IMG.resort },
 
-  { type: "puzzle", title: "008: Data Safety", text: "What is the best practice for protecting research data?", img: IMG.puz_items,
+  /* Puzzle 008 */
+  { type: "puzzle", title: "008: Data Safety", text: "What is the best practice for protecting research data?", img: IMG.puz_glass,
     hints: ["One copy is fragile: devices can fail or get lost.","The safer choice always involves a second location.","Answer: Back up to a second location (e.g., USB/cloud)."],
     choices: [{ text: "Keep only one copy on one device", correct:false },{ text: "Back up to a second location (e.g., USB/cloud)", correct:true },{ text: "Rely on memory tomorrow", correct:false }]
   },
 
   { type: "dialogue", speaker: "Scholar", text: "Dawn is coming. Prepare for the lake crossing.", bg: IMG.morning },
 
-  { type: "puzzle", title: "009: Weather Readiness", text: "Which condition most suggests you should delay a boat trip?", img: IMG.morning,
+  /* Puzzle 009 */  
+  { type: "puzzle", title: "009: Weather Readiness", text: "Which condition most suggests you should delay a boat trip?", img: IMG.puz_weather,
     hints: ["Think: what conditions can turn a lake dangerous quickly?","Electrical storms + wind = rough water and risk.","Answer: Thunderclouds and strong wind."],
     choices: [{ text: "Clear sky and calm water", correct:false },{ text: "Thunderclouds and strong wind", correct:true },{ text: "Warm temperature", correct:false }]
   },
 
-  { type: "gate", title: "Boat Ticket", cost: 30, msg: "Pay for the boat rental to cross the lake.", bg: IMG.boat },
-
+  /* Gate uses gate bg */
+  { type: "gate", title: "Boat Ticket", cost: 30, msg: "Pay for the boat rental to cross the lake.", bg: IMG.gate },
   { type: "dialogue", speaker: "Scholar", text: "Day 3, 7:00 AM. The Jetty. Safety first.", bg: IMG.boat },
 
-  { type: "puzzle", title: "010: Boat Safety", text: "What is the safest first step before boarding a small boat?", img: IMG.boat,
+  /* Puzzle 010 */
+  { type: "puzzle", title: "010: Boat Safety", text: "What is the safest first step before boarding a small boat?", img: IMG.puz_lifejacket,
     hints: ["Safety gear first, adventure second.","It keeps you afloat if you slip into the water.","Answer: Wear a life jacket."],
     choices: [{ text: "Wear a life jacket", correct:true },{ text: "Stand on the edge for photos", correct:false },{ text: "Carry all equipment at once", correct:false }]
   },
 
   { type: "dialogue", speaker: "Scholar", text: "Now the engine. Follow the correct startup logic.", bg: IMG.boat },
 
+  /* Puzzle 011 */
   { type: "puzzle", title: "011: Engine Sequence", text: "Engine startup: Ignition must be ON before pumping fuel. What comes first?", img: IMG.puz_engine,
     hints: ["The question gives the rule directly.","If A must be on before B, then A happens first.","Answer: Ignition."],
     choices: [{ text: "Cord pull", correct:false },{ text: "Fuel pump", correct:false },{ text: "Ignition", correct:true }]
   },
 
-  { type: "dialogue", speaker: "Narrator", text: "(The engine roars. We glide out onto the lake.)", bg: IMG.lotus },
+  { type: "dialogue", speaker: "Narrator", text: "(The engine roars. We glide out onto the lake.)", bg: IMG.lakeview },
+  { type: "dialogue", speaker: "Scholar", text: "This lake has is known for it's Mythogical.", bg: IMG.lotus },
 
-  { type: "dialogue", speaker: "Scholar", text: "This lake is sensitive. Even small pollution changes water quality.", bg: IMG.lotus },
-
-  { type: "puzzle", title: "012: Water Quality Clue", text: "Which sign can indicate poor water quality?", img: IMG.lotus,
-    hints: ["Think about what happens when nutrients and waste build up.","Bad smells and thick green growth are warning signs.","Answer: Strong foul smell + excessive algae bloom."],
-    choices: [{ text: "Normal clear water with fish activity", correct:false },{ text: "Strong foul smell + excessive algae bloom", correct:true },{ text: "Lotus flowers blooming", correct:false }]
-  },
+  /* Puzzle 012 */
+  { type: "puzzle", title: "012: The Serpent's Lodging", text: "I guard the lake. My name starts with 'N'.", img: IMG.puz_lake,
+  hints: ["Mythical.","Dragon.","Naga..."],
+  choices: [{ text: "Loch Ness", correct:false },{ text: "Naga Seri Gumum", correct:true },{ text: "Komodo", correct:false }]
+},
 
   { type: "dialogue", speaker: "Scholar", text: "We will take samples—carefully—to avoid contaminating them.", bg: IMG.lotus },
 
-  { type: "puzzle", title: "013: Sampling Method", text: "What reduces contamination when taking water samples?", img: IMG.puz_items,
+  /* Puzzle 013 */
+  { type: "puzzle", title: "013: Sampling Method", text: "What reduces contamination when taking water samples?", img: IMG.puz_rinse,
     hints: ["The goal is to make the bottle ‘match’ the sample environment.","A quick rinse (when allowed) removes leftover contaminants.","Answer: Rinse bottle with lake water before sampling (if protocol allows)."],
     choices: [{ text: "Rinse bottle with lake water before sampling (if protocol allows)", correct:true },{ text: "Touch the inside of the bottle cap", correct:false },{ text: "Use any random container", correct:false }]
   },
 
   { type: "dialogue", speaker: "Scholar", text: "We should document lotus zones and take minimal-impact observations.", bg: IMG.lotus },
 
+  /* Puzzle 014 */
   { type: "puzzle", title: "014: Lotus Conservation", text: "Which action best protects lotus habitats?", img: IMG.lotus,
     hints: ["The best action avoids physical damage.","Boat propellers and stems don’t mix.","Answer: Keep distance and avoid damaging stems."],
     choices: [{ text: "Drive boat through dense lotus patches", correct:false },{ text: "Keep distance and avoid damaging stems", correct:true },{ text: "Collect lotus flowers as trophies", correct:false }]
   },
 
-  { type: "dialogue", speaker: "Narrator", text: "(The boat slows near the shoreline. The lotus fields fade behind us, and the forest wall rises ahead—dense, humid, alive.)", bg: IMG.jungle },
+  { type: "dialogue", speaker: "Narrator", text: "(The boat slows near the shoreline. The lotus fields fade behind us, and the forest wall rises ahead—dense, humid, alive.)", bg: IMG.forestentry },
 
-  { type: "gate", title: "Guide Tip", cost: 20, msg: "Tip the jungle guide for their service.", bg: IMG.jungle },
+  /* Gate for guide tip uses gate bg */
+  { type: "gate", title: "Guide Tip", cost: 20, msg: "Tip the jungle guide for their service.", bg: IMG.gate },
+  { type: "dialogue", speaker: "Guide", text: "Before we enter, one rule: respect the forest and its people.", bg: IMG.forestentry },
 
-  { type: "dialogue", speaker: "Guide", text: "Before we enter, one rule: respect the forest and its people.", bg: IMG.jungle },
-
-  { type: "puzzle", title: "015: Local Respect", text: "What is the most respectful behavior when meeting local communities?", img: IMG.jungle,
+  /* Puzzle 015 */
+  { type: "puzzle", title: "015: Local Respect", text: "What is the most respectful behavior when meeting local communities?", img: IMG.puz_premission,
     hints: ["Respect starts with consent.","Ask before actions like filming, entering areas, or collecting info.","Answer: Ask permission and follow local guidance."],
     choices: [{ text: "Take photos without asking", correct:false },{ text: "Ask permission and follow local guidance", correct:true },{ text: "Ignore them and continue research", correct:false }]
   },
 
   { type: "dialogue", speaker: "Guide", text: "Now, choose the path. Look for signs of disturbance.", bg: IMG.jungle },
 
-  { type: "puzzle", title: "016: The Jungle Path", text: "Left: broken branches, disturbed soil. Right: undisturbed. Which path is safer for minimal impact?", img: IMG.puz_path,
-    hints: ["Minimal impact means avoid making new damage.","Choose the route that looks least disturbed.","Answer: Right."],
-    choices: [{ text: "Left", correct:false },{ text: "Right", correct:true },{ text: "Split up", correct:false }]
+  /* Puzzle 016 */  
+  { type: "puzzle", title: "016: The Jungle Path", text: "Right: broken branches, disturbed soil. Left: undisturbed. Which path is safer for minimal impact?", img: IMG.puz_path,
+    hints: ["Minimal impact means avoid making new damage.","Choose the route that looks least disturbed.","Answer: Left."],
+    choices: [{ text: "Right", correct:false },{ text: "Left", correct:true },{ text: "Split up", correct:false }]
   },
 
-  { type: "dialogue", speaker: "Scholar", text: "If we spot wildlife, we should observe without stressing animals.", bg: IMG.jungle },
 
-  { type: "puzzle", title: "017: Wildlife Distance", text: "What is best when observing wildlife?", img: IMG.jungle,
+  { type: "dialogue", speaker: "Scholar", text: "If we spot wildlife, we should observe without stressing animals.", bg: IMG.wildlife },
+
+  /* Puzzle 017 */
+  { type: "puzzle", title: "017: Wildlife Distance", text: "What is best when observing wildlife?", img: IMG.puz_observe,
     hints: ["Wild animals interpret closeness as a threat.","Quiet + distance reduces stress and risk.","Answer: Keep distance and stay quiet."],
     choices: [{ text: "Approach closely for better photos", correct:false },{ text: "Keep distance and stay quiet", correct:true },{ text: "Throw food to attract them", correct:false }]
   },
 
-  { type: "dialogue", speaker: "Scholar", text: "We should record coordinates for key observation points.", bg: IMG.jungle },
+  { type: "dialogue", speaker: "Scholar", text: "Local crafts show patterns that carry meaning and technique.", bg: IMG.village },
 
-  { type: "puzzle", title: "018: Coordinates", text: "Which tool most directly helps record exact locations?", img: IMG.puz_items,
-    hints: ["You need latitude and longitude.","Your phone can do it, or a dedicated unit.","Answer: GPS device / phone GPS."],
-    choices: [{ text: "GPS device / phone GPS", correct:true },{ text: "A whistle", correct:false },{ text: "A water bottle", correct:false }]
+   /* Puzzle 018 */ 
+  { type: "puzzle", title: "018: Weaving Patterns", text: "This woven pattern repeats in a regular way. What does a repeating pattern help with most?", img: IMG.puz_weave,
+    hints: ["Patterns aren’t only decoration.","Repetition helps keep work consistent and structured.","Answer: Consistency and symmetry in the weave."],
+    choices: [
+      { text: "Making the basket heavier", correct:false },
+      { text: "Consistency and symmetry in the weave", correct:true },
+      { text: "Stopping rain instantly", correct:false }
+    ]
   },
 
   { type: "dialogue", speaker: "Guide", text: "Watch the ground. Some plants irritate skin.", bg: IMG.jungle },
 
-  { type: "puzzle", title: "019: Field Safety", text: "What should you do if you touch an unknown irritating plant?", img: IMG.puz_items,
+  /* Puzzle 019 */
+  { type: "puzzle", title: "019: Field Safety", text: "What should you do if you touch an unknown irritating plant?", img: IMG.puz_wash,
     hints: ["Scratching spreads irritation and can worsen inflammation.","Best practice is rinse gently and don’t rub.","Answer: Rinse with clean water and avoid scratching."],
     choices: [{ text: "Rub it harder to 'remove' it", correct:false },{ text: "Rinse with clean water and avoid scratching", correct:true },{ text: "Ignore it and continue", correct:false }]
   },
 
-  { type: "dialogue", speaker: "Scholar", text: "Before leaving the site, we must avoid spreading invasive species.", bg: IMG.jungle },
 
-  { type: "puzzle", title: "020: Biosecurity", text: "What reduces the chance of spreading invasive seeds?", img: IMG.puz_items,
+  { type: "dialogue", speaker: "Scholar", text: "Before leaving the site, we must avoid spreading invasive species.", bg: IMG.bioexit },
+
+  /* Puzzle 020 */
+  { type: "puzzle", title: "020: Biosecurity", text: "What reduces the chance of spreading invasive seeds?", img: IMG.puz_cleanboot,
     hints: ["Seeds hitchhike on mud, laces, and gear.","Cleaning before moving sites stops accidental spread.","Answer: Clean boots and gear before moving to a new area."],
     choices: [{ text: "Clean boots and gear before moving to a new area", correct:true },{ text: "Walk through mud to 'wash' them", correct:false },{ text: "Shake clothes near the river", correct:false }]
   },
@@ -926,12 +972,17 @@ function fitToScreen(){
 
   gc.style.transform = `scale(${scale})`;
 }
-
-window.addEventListener("resize", () => {
-  fitToScreen();
-});
-
+window.addEventListener("resize", fitToScreen);
 function rand(min, max){ return Math.random()*(max-min)+min; }
+
+function shuffleArray(arr){
+  const a = arr.slice(); // copy, do NOT mutate original
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 const game = {
   index: 0,
@@ -946,9 +997,8 @@ const game = {
   unlockedGates: new Set(),
   solvedPuzzles: new Set(),
 
-  // ✅ practice mode state
   practiceMode: false,
-  practiceSceneIndex: null, // which puzzle index you opened in practice
+  practiceSceneIndex: null,
   practiceReturnTo: "puzzleSelect",
 
   hintTier: 0,
@@ -965,7 +1015,6 @@ const game = {
     this.unlockedGates.clear();
     this.solvedPuzzles.clear();
 
-    // story mode
     this.practiceMode = false;
     this.practiceSceneIndex = null;
 
@@ -999,25 +1048,23 @@ const game = {
     document.getElementById("global-back").style.display = "none";
     document.getElementById("start-layer").style.display = "flex";
 
-    // leaving everything -> reset practice mode
     this.practiceMode = false;
     this.practiceSceneIndex = null;
   },
 
   showPuzzleSelect(){
-    // Go to practice menu
     document.getElementById("start-layer").style.display = "none";
     ["ui-layer","dialogue-layer","puzzle-layer","collection-layer","gate-layer","custom-modal-layer","feedback-layer","hint-overlay"].forEach(id=>{
       document.getElementById(id).style.display = "none";
     });
     document.getElementById("global-back").style.display = "none";
 
-    this.practiceMode = false;        // not inside a puzzle yet
+    this.practiceMode = false;
     this.practiceSceneIndex = null;
 
     this.buildPuzzleSelect();
     document.getElementById("puzzle-select-layer").style.display = "flex";
-    document.getElementById("bg-layer").style.backgroundImage = `url('${IMG.uni}')`;
+    document.getElementById("bg-layer").style.backgroundImage = `url('${IMG.village}')`;
   },
 
   hidePuzzleSelect(){
@@ -1049,7 +1096,6 @@ const game = {
   },
 
   playPuzzlePractice(sceneIndex){
-    // ✅ Practice puzzle only, never links to story
     this.practiceMode = true;
     this.practiceSceneIndex = sceneIndex;
     this.index = sceneIndex;
@@ -1062,7 +1108,6 @@ const game = {
   },
 
   endPracticePuzzle(){
-    // ✅ Always return to puzzle select after practice completion/skip
     this.practiceMode = false;
     this.practiceSceneIndex = null;
 
@@ -1099,19 +1144,13 @@ const game = {
 
     document.getElementById("bg-layer").style.backgroundImage = `url('${scene.bg || IMG.uni}')`;
 
-    // hide main layers
     ["collection-layer","dialogue-layer","puzzle-layer","gate-layer"].forEach(id=>{
       document.getElementById(id).style.display = "none";
     });
-
-    // hide overlays
     ["feedback-layer","hint-overlay","custom-modal-layer"].forEach(id=>{
       document.getElementById(id).style.display = "none";
     });
 
-    // Back button:
-    // - Story: normal back
-    // - Practice: hide back so they can't jump around the story
     if(this.practiceMode){
       document.getElementById("global-back").style.display = "none";
     } else {
@@ -1202,7 +1241,7 @@ const game = {
       const wrap = document.getElementById("puzzle-choices");
       wrap.innerHTML = "";
 
-      scene.choices.forEach(c=>{
+      shuffleArray(scene.choices).forEach(c=>{
         const b = document.createElement("div");
         b.className = "choice-btn";
         b.innerHTML = `<span>${c.text}</span>`;
@@ -1212,7 +1251,6 @@ const game = {
           if(c.correct){
             this.puzzleLocked = true;
 
-            // reward only once and only in STORY mode
             if(!this.practiceMode){
               const alreadySolved = this.solvedPuzzles.has(this.index);
               if(!alreadySolved){
@@ -1227,7 +1265,6 @@ const game = {
               this.hideStamp();
               this.puzzleLocked = false;
 
-              // ✅ KEY FIX: practice mode returns to puzzle select
               if(this.practiceMode){
                 this.endPracticePuzzle();
               } else {
@@ -1316,8 +1353,6 @@ const game = {
     this.showStamp(true, "SKIPPED");
     setTimeout(() => {
       this.hideStamp();
-
-      // ✅ KEY FIX: practice mode returns to puzzle select, not story
       if(this.practiceMode){
         this.endPracticePuzzle();
       } else {
@@ -1357,9 +1392,7 @@ const game = {
   },
 
   prev(){
-    // prevent backtracking while in practice mode
     if(this.practiceMode) return;
-
     if(this.index > 0){
       this.index--;
       this.render();
@@ -1367,7 +1400,6 @@ const game = {
   },
 
   next(){
-    // practice mode must never call next
     if(this.practiceMode) return;
 
     const current = SCENES[this.index];
@@ -1409,6 +1441,7 @@ const game = {
     }
     this.render();
   },
+  
 
   typewriter(text){
     const el = document.getElementById("text");
@@ -1463,7 +1496,7 @@ const game = {
 
 window.onload = () => {
   fitToScreen();
-  
+
   document.getElementById("start-layer").style.display = "flex";
   document.getElementById("bg-layer").style.display = "block";
   document.getElementById("puzzle-select-layer").style.display = "none";
