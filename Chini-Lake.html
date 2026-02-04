@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Mystery of the Chini Biosphere (Ultimate Edition)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=IM+Fell+English+SC&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    :root {
+      --theme-brown: #3e2723;
+      --theme-dark: #2d1b15;
+      --theme-gold: #ffb300;
+      --theme-cream: #fdfbf7;
+      --theme-red: #c62828;
+      --theme-green: #2e7d32;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #1a1a1a;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "Crimson Text", serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #game-container {
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      background-color: #000;
+      border: 8px solid var(--theme-dark);
+      border-radius: 12px;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    .layer { position: absolute; inset: 0; }
+
+    /* --- START SCREEN --- */
+    #start-layer {
+      z-index: 50;
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)),
+        url("https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1280&auto=format&fit=crop");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding-bottom: 60px;
+      pointer-events: auto;
+    }
+
+    .title-group { text-align: center; margin-bottom: 50px; width: 100%; }
+
+    .main-title {
+      font-family: "IM Fell English SC", serif;
+      font-size: 5rem;
+      color: #ffca28;
+      text-shadow: 4px 4px 0px #000;
+      margin: 0;
+      line-height: 1;
+      padding: 0 20px;
+    }
+
+    .subtitle {
+      font-family: "Cinzel", serif;
+      font-size: 1.8rem;
+      color: white;
+      margin-top: 10px;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px black;
+      text-transform: uppercase;
+    }
+
+    .menu-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
+      height: 100px;
+    }
+
+    .menu-btn {
+      width: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Cinzel", serif;
+      font-size: 2rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.2s, filter 0.2s;
+      position: relative;
+      border: 4px solid var(--theme-brown);
+      border-radius: 12px;
+      transform: skewX(-15deg);
+      box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.5);
+      pointer-events: auto;
+    }
+
+    .menu-btn span { transform: skewX(15deg); }
+
+    .btn-start { background-color: var(--theme-gold); color: var(--theme-dark); }
+    .btn-puzzles { background-color: #ffffff; color: #2d1b15; }
+
+    .menu-btn:hover {
+      filter: brightness(1.1);
+      transform: skewX(-15deg) translateY(-5px);
+      box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.5);
+    }
+
+    /* --- BACK BUTTON --- */
+    #global-back {
+      position: absolute;
+      top: 50%;
+      left: 24px;
+      transform: translateY(-50%);
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.15rem;
+      font-family: "Cinzel", serif;
+      border: 2px solid white;
+      padding: 10px 26px;
+      border-radius: 30px;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(3px);
+      z-index: 150;
+      display: none;
+      pointer-events: auto;
+    }
+    #global-back:hover { background: rgba(255,255,255,0.15); }
+    #global-back:active { transform: translateY(-50%) scale(0.96); }
+
+    /* --- BG --- */
+    #bg-layer {
+      z-index: 0;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.9);
+      transition: background-image 0.5s ease-in-out;
+    }
+
+    /* --- UI BAR --- */
+    #ui-layer { z-index: 40; display: none; pointer-events: none; }
+    .top-bar {
+      height: 60px;
+      width: 100%;
+      box-sizing: border-box;
+      background: linear-gradient(to bottom, #5d4037, #3e2723);
+      border-bottom: 4px solid var(--theme-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      color: var(--theme-cream);
+      font-family: "Cinzel", serif;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      pointer-events: auto;
+    }
+
+    .top-right-stats {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    .top-right-stats .stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+    .stat-coins { color: var(--theme-gold); }
+    .stat-pages { color: var(--theme-cream); opacity: 0.95; }
+
+    /* --- COLLECTION --- */
+    #collection-layer {
+      z-index: 35;
+      display: none;
+      pointer-events: auto;
+    }
+    .coin {
+      position: absolute;
+      font-size: 3rem;
+      filter: drop-shadow(0 0 15px white);
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.3s;
+      animation: float 2s infinite ease-in-out;
+      user-select: none;
+    }
+    .coin:hover { transform: scale(1.3); }
+    .coin.collected { transform: scale(2); opacity: 0; pointer-events: none; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    /* --- GATE --- */
+    #gate-layer {
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.9);
+      pointer-events: auto;
+    }
+    .gate-modal {
+      background: var(--theme-brown);
+      border: 4px solid var(--theme-gold);
+      color: var(--theme-cream);
+      padding: 40px;
+      text-align: center;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 600px;
+    }
+    .pay-btn {
+      background: var(--theme-green);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.5rem;
+      font-family: "Cinzel", serif;
+      margin-top: 20px;
+      cursor: pointer;
+      border-radius: 50px;
+      box-shadow: 0 5px 0 #1b5e20;
+    }
+    .pay-btn:active { transform: translateY(5px); box-shadow: none; }
+    .pay-btn:disabled { background: #555; box-shadow: none; cursor: not-allowed; }
+
+    /* --- DIALOGUE --- */
+    #dialogue-layer {
+      z-index: 20;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 40px;
+      pointer-events: auto;
+    }
+    .dialogue-box {
+      background: rgba(253, 251, 247, 0.95);
+      border: 4px solid var(--theme-brown);
+      border-radius: 12px;
+      width: 90%;
+      margin: 0 auto;
+      padding: 30px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
+    }
+    .click-zone-left { position:absolute; top:0; left:0; width:20%; height:100%; z-index:5; }
+    .click-zone-right { position:absolute; top:0; left:20%; width:80%; height:100%; z-index:5; }
+    .speaker-tag {
+      position: absolute;
+      top: -24px;
+      left: 30px;
+      background: var(--theme-red);
+      color: white;
+      padding: 8px 30px;
+      font-family: "Cinzel", serif;
+      font-weight: bold;
+      font-size: 1.2rem;
+      border-radius: 4px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      border: 2px solid white;
+    }
+    .dialogue-text { font-size: 1.6rem; color:#2d1b15; line-height:1.4; margin-top:15px; }
+    .next-arrow { position:absolute; bottom:20px; right:20px; color:var(--theme-brown); font-size:2rem; animation:bounce 1s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
+
+    #hidden-items-container { position:absolute; inset:0; pointer-events:none; z-index:25; }
+
+    /* --- PUZZLE --- */
+    #puzzle-layer {
+      z-index: 30;
+      background: rgba(45, 27, 21, 0.98);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+    .puzzle-interface {
+      background: var(--theme-cream);
+      width: 1000px;
+      height: 600px;
+      border: 8px double var(--theme-brown);
+      border-radius: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+    }
+    .puzzle-visual {
+      background: #222;
+      border-right: 4px solid var(--theme-brown);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .puzzle-img {
+      max-width: 100%;
+      max-height: 350px;
+      border: 4px solid var(--theme-gold);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      object-fit: contain;
+    }
+    .puzzle-content {
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
+      overflow-y: auto;
+    }
+    .puzzle-header {
+      font-family: "Cinzel", serif;
+      font-size: 2.2rem;
+      color: var(--theme-brown);
+      border-bottom: 3px solid var(--theme-red);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    .puzzle-text { font-size: 1.4rem; line-height: 1.6; margin-bottom: 18px; }
+    .choice-btn {
+      background: white;
+      border: 3px solid var(--theme-brown);
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      font-family: "Cinzel", serif;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+    }
+    .choice-btn:hover {
+      background: var(--theme-gold);
+      transform: translateX(10px);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .puzzle-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .puzzle-action-btn, .puzzle-hint-btn {
+      border: 2px solid var(--theme-brown);
+      background: white;
+      padding: 10px 14px;
+      font-family: "Cinzel", serif;
+      cursor: pointer;
+      border-radius: 10px;
+      font-size: 1.05rem;
+    }
+    .puzzle-action-btn:hover, .puzzle-hint-btn:hover { background: var(--theme-gold); }
+    .puzzle-action-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* --- PUZZLE SELECT --- */
+    #puzzle-select-layer{
+      z-index: 60;
+      display: none;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+    .puzzle-select-box{
+      width: 950px;
+      max-width: calc(100% - 80px);
+      max-height: calc(100% - 120px);
+      background: var(--theme-cream);
+      border: 6px double var(--theme-brown);
+      border-radius: 12px;
+      padding: 26px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8);
+      background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
+    }
+    .puzzle-select-title{
+      margin: 0;
+      font-family: "Cinzel", serif;
+      color: var(--theme-brown);
+      font-size: 2.4rem;
+      border-bottom: 3px solid var(--theme-red);
+      padding-bottom: 12px;
+    }
+    .puzzle-select-sub{
+      margin: 12px 0 16px;
+      font-size: 1.2rem;
+      color: var(--theme-dark);
+    }
+    .puzzle-select-list{
+      overflow: auto;
+      max-height: 520px;
+      padding-right: 10px;
+    }
+    .puzzle-item{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: white;
+      border: 2px solid var(--theme-brown);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .puzzle-item:hover{
+      background: var(--theme-gold);
+      transform: translateX(8px);
+    }
+    .puzzle-item .left{
+      display:flex;
+      flex-direction: column;
+    }
+    .puzzle-item .p-title{
+      font-family: "Cinzel", serif;
+      font-weight: 700;
+      color: var(--theme-dark);
+    }
+    .puzzle-item .p-desc{
+      font-size: 1.05rem;
+      color: #3a2a23;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+    .puzzle-item .tag{
+      font-family: "Cinzel", serif;
+      font-size: 0.95rem;
+      color: white;
+      background: var(--theme-brown);
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+    .puzzle-select-actions{
+      display:flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .puzzle-select-btn{
+      border: 2px solid var(--theme-brown);
+      background: white;
+      padding: 10px 18px;
+      font-family: "Cinzel", serif;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .puzzle-select-btn:hover{ background: var(--theme-gold); }
+
+    /* --- FEEDBACK STAMP --- */
+    #feedback-layer {
+      z-index: 180;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.8);
+      pointer-events: auto;
+    }
+    .stamp-box {
+      background: white;
+      padding: 50px 100px;
+      border: 10px solid;
+      border-radius: 30px;
+      transform: rotate(-10deg) scale(0.9);
+      animation: stampAnim 0.35s forwards;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+    }
+    .stamp-box.correct { border-color: var(--theme-green); color: var(--theme-green); }
+    .stamp-box.wrong { border-color: var(--theme-red); color: var(--theme-red); }
+    .stamp-text {
+      font-family: "IM Fell English SC", serif;
+      font-size: 5rem;
+      margin: 0;
+      letter-spacing: 2px;
+    }
+    @keyframes stampAnim {
+      from { transform: rotate(-10deg) scale(1.25); opacity: 0.2; }
+      to   { transform: rotate(-10deg) scale(1); opacity: 1; }
+    }
+
+    /* --- HINT OVERLAY --- */
+    #hint-overlay {
+      z-index: 190;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.8);
+      pointer-events: auto;
+    }
+    .hint-modal {
+      background: var(--theme-cream);
+      padding: 30px;
+      border: 4px solid var(--theme-brown);
+      border-radius: 12px;
+      max-width: 520px;
+      width: 520px;
+      text-align: center;
+      font-family: "Crimson Text", serif;
+      font-size: 1.4rem;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+      background-image: url("https://www.transparenttextures.com/patterns/aged-paper.png");
+    }
+
+    /* --- MODAL --- */
+    #custom-modal-layer {
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.8);
+      pointer-events: auto;
+    }
+    .modal-box {
+      background: var(--theme-cream);
+      border: 4px solid var(--theme-brown);
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 520px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+    .modal-msg { font-size: 1.5rem; color: var(--theme-dark); margin-bottom: 30px; }
+    .modal-btns { display: flex; justify-content: center; gap: 20px; }
+    .modal-btn {
+      padding: 10px 30px;
+      border: 2px solid var(--theme-brown);
+      background: white;
+      font-family: "Cinzel", serif;
+      cursor: pointer;
+      border-radius: 5px;
+      min-width: 120px;
+    }
+    .modal-btn:hover { background: var(--theme-gold); }
+  </style>
+</head>
+
+<body>
+  <div id="game-container">
+
+    <!-- START -->
+    <div id="start-layer" class="layer">
+      <div class="title-group">
+        <h1 class="main-title">The Mystery of the<br />Chini Biosphere</h1>
+        <div class="subtitle">An Expanded Educational Expedition</div>
+      </div>
+      <div class="menu-container">
+        <div class="menu-btn btn-start" onclick="game.startGame()"><span>START GAME</span></div>
+        <div class="menu-btn btn-puzzles" onclick="game.showPuzzleSelect()"><span>PUZZLES</span></div>
+      </div>
+    </div>
+
+    <!-- PUZZLE SELECT -->
+    <div id="puzzle-select-layer" class="layer">
+      <div class="puzzle-select-box">
+        <h1 class="puzzle-select-title">PUZZLE SELECT</h1>
+        <p class="puzzle-select-sub">Choose any puzzle to practice. (No rewards, never continues story.)</p>
+        <div id="puzzle-select-list" class="puzzle-select-list"></div>
+        <div class="puzzle-select-actions">
+          <button class="puzzle-select-btn" onclick="game.hidePuzzleSelect()">BACK</button>
+          <button class="puzzle-select-btn" onclick="game.startGame()">START STORY</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BG -->
+    <div id="bg-layer" class="layer"></div>
+
+    <!-- GLOBAL BACK -->
+    <div id="global-back" onclick="game.prev()"><i class="fa-solid fa-arrow-left"></i> BACK</div>
+
+    <!-- UI -->
+    <div id="ui-layer" class="layer">
+      <div class="top-bar">
+        <div>THE MYSTERY OF THE CHINI BIOSPHERE</div>
+        <div class="top-right-stats">
+          <div class="stat stat-coins">
+            <i class="fa-solid fa-coins"></i>
+            <span id="score">0</span> Picarats
+          </div>
+          <div class="stat stat-pages">
+            <i class="fa-solid fa-book-open"></i>
+            Journal: <span id="pages-found">0</span>/5
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLLECTION -->
+    <div id="collection-layer" class="layer">
+      <div
+        style="position:absolute; top:80px; left:50%; transform:translateX(-50%);
+               background:rgba(0,0,0,0.7); color:white; padding:10px 20px;
+               border-radius:20px; text-align:center;">
+        Find 5 Hidden Coins to fund your trip!<br />
+        <span id="coins-found">0</span> / 5 Found
+      </div>
+    </div>
+
+    <!-- GATE -->
+    <div id="gate-layer" class="layer">
+      <div class="gate-modal">
+        <i class="fa-solid fa-lock" style="font-size:4rem; color:var(--theme-gold); margin-bottom:20px;"></i>
+        <h1 style="font-family:'Cinzel',serif; margin:0;">CHECKPOINT</h1>
+        <p id="gate-msg" style="font-size:1.4rem; margin:20px 0;">...</p>
+        <div id="gate-cost-row" style="font-size:1.2rem; margin-bottom:10px;">
+          Cost: <span id="gate-cost">0</span> Picarats
+        </div>
+        <button id="pay-btn" class="pay-btn">CONTINUE</button>
+      </div>
+    </div>
+
+    <!-- DIALOGUE -->
+    <div id="dialogue-layer" class="layer">
+      <div id="hidden-items-container"></div>
+      <div class="dialogue-box">
+        <div class="click-zone-left" onclick="game.prev()"></div>
+        <div class="click-zone-right" onclick="game.next()"></div>
+        <div class="speaker-tag" id="speaker">Name</div>
+        <div class="dialogue-text" id="text">...</div>
+        <div class="next-arrow"><i class="fa-solid fa-caret-down"></i></div>
+      </div>
+    </div>
+
+    <!-- PUZZLE -->
+    <div id="puzzle-layer" class="layer">
+      <div class="puzzle-interface">
+        <div class="puzzle-visual">
+          <div style="color:white; margin-bottom:15px; font-family:'Cinzel', serif;">VISUAL CUE</div>
+          <img id="puzzle-img" class="puzzle-img" src="" alt="Puzzle Clue" />
+        </div>
+        <div class="puzzle-content">
+          <div>
+            <div class="puzzle-header" id="puzzle-title">Title</div>
+            <div class="puzzle-text" id="puzzle-desc">Desc</div>
+          </div>
+
+          <div id="puzzle-choices"></div>
+
+          <div class="puzzle-actions">
+            <button id="hint-btn" class="puzzle-action-btn" onclick="game.showHint()">HINT</button>
+            <button id="skip-btn" class="puzzle-action-btn" onclick="game.skipPuzzle()">SKIP</button>
+          </div>
+
+          <div style="margin-top:10px; font-size:1rem; opacity:0.85;">
+            Hint Tier: <span id="hint-tier">0</span>/3
+          </div>
+
+          <div id="practice-banner" style="display:none; margin-top:14px; font-family:'Cinzel',serif; font-size:1.05rem; color:#2d1b15;">
+            Practice Mode: finishing returns to Puzzle Select.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEEDBACK STAMP -->
+    <div id="feedback-layer" class="layer">
+      <div id="stamp-box" class="stamp-box">
+        <h1 id="stamp-text" class="stamp-text">CORRECT</h1>
+      </div>
+    </div>
+
+    <!-- HINT OVERLAY -->
+    <div id="hint-overlay" class="layer">
+      <div class="hint-modal">
+        <div style="font-family:'Cinzel',serif; font-size:1.6rem; margin-bottom:10px;">HINT</div>
+        <div id="hint-text">...</div>
+        <div style="margin-top:18px; display:flex; justify-content:center; gap:12px;">
+          <button class="puzzle-hint-btn" onclick="game.closeHint()">CLOSE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="custom-modal-layer" class="layer">
+      <div class="modal-box">
+        <p id="custom-modal-text" class="modal-msg">Message</p>
+        <div class="modal-btns">
+          <button id="custom-modal-yes" class="modal-btn">YES</button>
+          <button id="custom-modal-no" class="modal-btn">NO</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* --- ASSETS --- */
+const IMG = {
+  uni: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1280&auto=format&fit=crop",
+  packing: "https://images.unsplash.com/photo-1553531384-cc64ac80f931?q=80&w=1280&auto=format&fit=crop",
+  highway: "https://images.unsplash.com/photo-1470290374250-802c1272733d?q=80&w=1280&auto=format&fit=crop",
+  resort: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1280&auto=format&fit=crop",
+  morning: "https://images.unsplash.com/photo-1493770348161-369560ae357d?q=80&w=1280&auto=format&fit=crop",
+  boat: "https://images.unsplash.com/photo-1544550581-5f7ceaf7f992?q=80&w=1280&auto=format&fit=crop",
+  lotus: "https://images.unsplash.com/photo-1512782782330-c322798544ba?q=80&w=1280&auto=format&fit=crop",
+  jungle: "https://images.unsplash.com/photo-1448375240586-dfd8d395ea6c?q=80&w=1280&auto=format&fit=crop",
+  puz_items: "https://images.unsplash.com/photo-1584208124888-3a20b9c799e2?q=80&w=1280&auto=format&fit=crop",
+  puz_bus: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1280&auto=format&fit=crop",
+  puz_engine: "https://images.unsplash.com/photo-1619641249780-25272a2753a8?q=80&w=1280&auto=format&fit=crop",
+  puz_path: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1280&auto=format&fit=crop"
+};
+
+/* --- STORY (20 PUZZLES + HINTS + 2 ENDINGS) --- */
+const SCENES = [
+  { type: "collection", text: "Collect 5 Coins to fund your trip!", bg: IMG.uni },
+
+  { type: "dialogue", speaker: "Scholar", text: "We have funds! 2:00 PM. UKM. The sun beats down on the pavement.", bg: IMG.uni },
+  { type: "dialogue", speaker: "Scholar", text: "Before we leave, we must pack properly. Research is useless without good preparation.", bg: IMG.packing },
+
+  { type: "puzzle", title: "001: The Essential Item", text: "Which item is crucial for recording scientific findings?", img: IMG.puz_items,
+    hints: ["Think: how do scientists capture observations during fieldwork?","It’s for writing data, not entertainment or comfort.","Answer: Field Notebook."],
+    choices: [{ text: "GameBoy", correct:false },{ text: "Field Notebook", correct:true },{ text: "Pillow", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "Correct. Now, we may arrive late. It could be dark.", bg: IMG.packing },
+
+  { type: "puzzle", title: "002: The Night Tool", text: "Tasik Chini can be very dark at night. What do you need?", img: IMG.puz_items,
+    hints: ["What helps you see in the dark without relying on streetlights?","It’s a handheld light source used in camping.","Answer: Torchlight."],
+    choices: [{ text: "Sunglasses", correct:false },{ text: "Torchlight", correct:true },{ text: "Sunscreen", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "We also need to protect the research equipment from humidity.", bg: IMG.packing },
+
+  { type: "puzzle", title: "003: Humidity Protection", text: "Which item best protects electronics from moisture?", img: IMG.puz_items,
+    hints: ["Think of the tiny packets found in shoeboxes and camera bags.","They absorb moisture from the air.","Answer: Silica gel packets."],
+    choices: [{ text: "Silica gel packets", correct:true },{ text: "Paper tissues", correct:false },{ text: "Extra shoelaces", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "And we must plan ethically—nature is not our playground.", bg: IMG.packing },
+
+  { type: "puzzle", title: "004: Leave No Trace", text: "Which action follows responsible fieldwork ethics?", img: IMG.puz_items,
+    hints: ["The best choice minimizes long-term impact on the environment.","Don’t leave anything behind that wasn’t already there.","Answer: Pack out all trash, leave nothing behind."],
+    choices: [{ text: "Collect plants as souvenirs", correct:false },{ text: "Pack out all trash, leave nothing behind", correct:true },{ text: "Feed wildlife to get photos", correct:false }]
+  },
+
+  { type: "gate", title: "Bus Fare", cost: 10, msg: "Pay the driver to board the bus.", bg: IMG.uni },
+
+  { type: "dialogue", speaker: "Dr. Zurina", text: "Good. Help load the bus. There is a safe order so nothing breaks.", bg: IMG.uni },
+
+  { type: "puzzle", title: "005: The Luggage Stack", text: "Heavy Trunks, Bags, Fragile Items. Heavy at bottom. Fragile on top. Order?", img: IMG.puz_bus,
+    hints: ["Apply the rule: heavy supports, fragile is protected.","Middle layer should be something softer than trunks.","Answer: Heavy, Bags, Fragile."],
+    choices: [{ text: "Fragile, Heavy, Bags", correct:false },{ text: "Bags, Fragile, Heavy", correct:false },{ text: "Heavy, Bags, Fragile", correct:true }]
+  },
+
+  { type: "dialogue", speaker: "Narrator", text: "(3:00 PM: The bus departs. The city fades into palm oil plantations.)", bg: IMG.highway },
+
+  { type: "dialogue", speaker: "Scholar", text: "Look at the landscape changes. Habitat fragmentation affects biodiversity.", bg: IMG.highway },
+
+  { type: "puzzle", title: "006: Habitat Fragmentation", text: "What is a major risk of fragmented forests?", img: IMG.puz_path,
+    hints: ["Separated habitats reduce movement between groups.","Small isolated groups can lose genetic variety over time.","Answer: Isolated populations and reduced genetic diversity."],
+    choices: [{ text: "More continuous habitat for wildlife", correct:false },{ text: "Isolated populations and reduced genetic diversity", correct:true },{ text: "Instant recovery of endangered species", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "We should log our route and timestamps for research reproducibility.", bg: IMG.highway },
+
+  { type: "puzzle", title: "007: Reproducibility", text: "Which detail best supports reproducible field research?", img: IMG.puz_items,
+    hints: ["Future researchers need the exact ‘where’ and ‘when’.","A location tag plus time is stronger than a vague description.","Answer: Exact time + GPS location of observations."],
+    choices: [{ text: "Exact time + GPS location of observations", correct:true },{ text: "Only writing conclusions", correct:false },{ text: "Skipping 'boring' measurements", correct:false }]
+  },
+
+  { type: "gate", title: "Check-In", cost: 0, itemReq: "optional", msg: "Reception checks your travel log (Optional for best ending).", bg: IMG.resort },
+
+  { type: "dialogue", speaker: "Narrator", text: "(10:00 PM: Arrival. The air is thick with humidity.)", bg: IMG.resort },
+
+  { type: "dialogue", speaker: "Scholar", text: "Before sleep, we should back up today’s notes.", bg: IMG.resort },
+
+  { type: "puzzle", title: "008: Data Safety", text: "What is the best practice for protecting research data?", img: IMG.puz_items,
+    hints: ["One copy is fragile: devices can fail or get lost.","The safer choice always involves a second location.","Answer: Back up to a second location (e.g., USB/cloud)."],
+    choices: [{ text: "Keep only one copy on one device", correct:false },{ text: "Back up to a second location (e.g., USB/cloud)", correct:true },{ text: "Rely on memory tomorrow", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "Dawn is coming. Prepare for the lake crossing.", bg: IMG.morning },
+
+  { type: "puzzle", title: "009: Weather Readiness", text: "Which condition most suggests you should delay a boat trip?", img: IMG.morning,
+    hints: ["Think: what conditions can turn a lake dangerous quickly?","Electrical storms + wind = rough water and risk.","Answer: Thunderclouds and strong wind."],
+    choices: [{ text: "Clear sky and calm water", correct:false },{ text: "Thunderclouds and strong wind", correct:true },{ text: "Warm temperature", correct:false }]
+  },
+
+  { type: "gate", title: "Boat Ticket", cost: 30, msg: "Pay for the boat rental to cross the lake.", bg: IMG.boat },
+
+  { type: "dialogue", speaker: "Scholar", text: "Day 3, 7:00 AM. The Jetty. Safety first.", bg: IMG.boat },
+
+  { type: "puzzle", title: "010: Boat Safety", text: "What is the safest first step before boarding a small boat?", img: IMG.boat,
+    hints: ["Safety gear first, adventure second.","It keeps you afloat if you slip into the water.","Answer: Wear a life jacket."],
+    choices: [{ text: "Wear a life jacket", correct:true },{ text: "Stand on the edge for photos", correct:false },{ text: "Carry all equipment at once", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "Now the engine. Follow the correct startup logic.", bg: IMG.boat },
+
+  { type: "puzzle", title: "011: Engine Sequence", text: "Engine startup: Ignition must be ON before pumping fuel. What comes first?", img: IMG.puz_engine,
+    hints: ["The question gives the rule directly.","If A must be on before B, then A happens first.","Answer: Ignition."],
+    choices: [{ text: "Cord pull", correct:false },{ text: "Fuel pump", correct:false },{ text: "Ignition", correct:true }]
+  },
+
+  { type: "dialogue", speaker: "Narrator", text: "(The engine roars. We glide out onto the lake.)", bg: IMG.lotus },
+
+  { type: "dialogue", speaker: "Scholar", text: "This lake is sensitive. Even small pollution changes water quality.", bg: IMG.lotus },
+
+  { type: "puzzle", title: "012: Water Quality Clue", text: "Which sign can indicate poor water quality?", img: IMG.lotus,
+    hints: ["Think about what happens when nutrients and waste build up.","Bad smells and thick green growth are warning signs.","Answer: Strong foul smell + excessive algae bloom."],
+    choices: [{ text: "Normal clear water with fish activity", correct:false },{ text: "Strong foul smell + excessive algae bloom", correct:true },{ text: "Lotus flowers blooming", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "We will take samples—carefully—to avoid contaminating them.", bg: IMG.lotus },
+
+  { type: "puzzle", title: "013: Sampling Method", text: "What reduces contamination when taking water samples?", img: IMG.puz_items,
+    hints: ["The goal is to make the bottle ‘match’ the sample environment.","A quick rinse (when allowed) removes leftover contaminants.","Answer: Rinse bottle with lake water before sampling (if protocol allows)."],
+    choices: [{ text: "Rinse bottle with lake water before sampling (if protocol allows)", correct:true },{ text: "Touch the inside of the bottle cap", correct:false },{ text: "Use any random container", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "We should document lotus zones and take minimal-impact observations.", bg: IMG.lotus },
+
+  { type: "puzzle", title: "014: Lotus Conservation", text: "Which action best protects lotus habitats?", img: IMG.lotus,
+    hints: ["The best action avoids physical damage.","Boat propellers and stems don’t mix.","Answer: Keep distance and avoid damaging stems."],
+    choices: [{ text: "Drive boat through dense lotus patches", correct:false },{ text: "Keep distance and avoid damaging stems", correct:true },{ text: "Collect lotus flowers as trophies", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Narrator", text: "(The boat slows near the shoreline. The lotus fields fade behind us, and the forest wall rises ahead—dense, humid, alive.)", bg: IMG.jungle },
+
+  { type: "gate", title: "Guide Tip", cost: 20, msg: "Tip the jungle guide for their service.", bg: IMG.jungle },
+
+  { type: "dialogue", speaker: "Guide", text: "Before we enter, one rule: respect the forest and its people.", bg: IMG.jungle },
+
+  { type: "puzzle", title: "015: Local Respect", text: "What is the most respectful behavior when meeting local communities?", img: IMG.jungle,
+    hints: ["Respect starts with consent.","Ask before actions like filming, entering areas, or collecting info.","Answer: Ask permission and follow local guidance."],
+    choices: [{ text: "Take photos without asking", correct:false },{ text: "Ask permission and follow local guidance", correct:true },{ text: "Ignore them and continue research", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Guide", text: "Now, choose the path. Look for signs of disturbance.", bg: IMG.jungle },
+
+  { type: "puzzle", title: "016: The Jungle Path", text: "Left: broken branches, disturbed soil. Right: undisturbed. Which path is safer for minimal impact?", img: IMG.puz_path,
+    hints: ["Minimal impact means avoid making new damage.","Choose the route that looks least disturbed.","Answer: Right."],
+    choices: [{ text: "Left", correct:false },{ text: "Right", correct:true },{ text: "Split up", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "If we spot wildlife, we should observe without stressing animals.", bg: IMG.jungle },
+
+  { type: "puzzle", title: "017: Wildlife Distance", text: "What is best when observing wildlife?", img: IMG.jungle,
+    hints: ["Wild animals interpret closeness as a threat.","Quiet + distance reduces stress and risk.","Answer: Keep distance and stay quiet."],
+    choices: [{ text: "Approach closely for better photos", correct:false },{ text: "Keep distance and stay quiet", correct:true },{ text: "Throw food to attract them", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "We should record coordinates for key observation points.", bg: IMG.jungle },
+
+  { type: "puzzle", title: "018: Coordinates", text: "Which tool most directly helps record exact locations?", img: IMG.puz_items,
+    hints: ["You need latitude and longitude.","Your phone can do it, or a dedicated unit.","Answer: GPS device / phone GPS."],
+    choices: [{ text: "GPS device / phone GPS", correct:true },{ text: "A whistle", correct:false },{ text: "A water bottle", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Guide", text: "Watch the ground. Some plants irritate skin.", bg: IMG.jungle },
+
+  { type: "puzzle", title: "019: Field Safety", text: "What should you do if you touch an unknown irritating plant?", img: IMG.puz_items,
+    hints: ["Scratching spreads irritation and can worsen inflammation.","Best practice is rinse gently and don’t rub.","Answer: Rinse with clean water and avoid scratching."],
+    choices: [{ text: "Rub it harder to 'remove' it", correct:false },{ text: "Rinse with clean water and avoid scratching", correct:true },{ text: "Ignore it and continue", correct:false }]
+  },
+
+  { type: "dialogue", speaker: "Scholar", text: "Before leaving the site, we must avoid spreading invasive species.", bg: IMG.jungle },
+
+  { type: "puzzle", title: "020: Biosecurity", text: "What reduces the chance of spreading invasive seeds?", img: IMG.puz_items,
+    hints: ["Seeds hitchhike on mud, laces, and gear.","Cleaning before moving sites stops accidental spread.","Answer: Clean boots and gear before moving to a new area."],
+    choices: [{ text: "Clean boots and gear before moving to a new area", correct:true },{ text: "Walk through mud to 'wash' them", correct:false },{ text: "Shake clothes near the river", correct:false }]
+  },
+
+  { type: "endingCheck", speaker: "Narrator", text: "The journey concludes... but did you uncover the full journal?", bg: IMG.uni },
+  { type: "endingNormal", speaker: "Scholar", text: "We completed the expedition, but some journal pages are still missing. Tasik Chini keeps a few secrets for next time.", bg: IMG.uni },
+  { type: "endingBest", speaker: "Scholar", text: "Best Ending! You recovered all journal pages. Your complete field log will help protect Tasik Chini for future researchers.", bg: IMG.uni }
+];
+
+function rand(min, max){ return Math.random()*(max-min)+min; }
+
+const game = {
+  index: 0,
+  score: 50,
+  coinsFound: 0,
+  typingTimer: null,
+
+  pagesTotal: 5,
+  collectedPages: new Set(),
+  pageSpawnMap: {},
+
+  unlockedGates: new Set(),
+  solvedPuzzles: new Set(),
+
+  // ✅ practice mode state
+  practiceMode: false,
+  practiceSceneIndex: null, // which puzzle index you opened in practice
+  practiceReturnTo: "puzzleSelect",
+
+  hintTier: 0,
+  puzzleLocked: false,
+  endingPromptActive: false,
+
+  startGame(){
+    this.index = 0;
+    this.score = 50;
+    this.coinsFound = 0;
+
+    this.collectedPages.clear();
+    this.pageSpawnMap = {};
+    this.unlockedGates.clear();
+    this.solvedPuzzles.clear();
+
+    // story mode
+    this.practiceMode = false;
+    this.practiceSceneIndex = null;
+
+    this.hintTier = 0;
+    this.puzzleLocked = false;
+    this.endingPromptActive = false;
+
+    this.assignRandomPages();
+    this.updateScore();
+    this.updatePagesFound();
+
+    this.hideAllOverlays();
+
+    document.getElementById("start-layer").style.display = "none";
+    document.getElementById("ui-layer").style.display = "block";
+    this.render();
+  },
+
+  hideAllOverlays(){
+    ["puzzle-select-layer","feedback-layer","hint-overlay","custom-modal-layer"].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.style.display = "none";
+    });
+  },
+
+  showHome(){
+    ["ui-layer","dialogue-layer","puzzle-layer","collection-layer","gate-layer","custom-modal-layer","puzzle-select-layer","feedback-layer","hint-overlay"].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.style.display = "none";
+    });
+    document.getElementById("global-back").style.display = "none";
+    document.getElementById("start-layer").style.display = "flex";
+
+    // leaving everything -> reset practice mode
+    this.practiceMode = false;
+    this.practiceSceneIndex = null;
+  },
+
+  showPuzzleSelect(){
+    // Go to practice menu
+    document.getElementById("start-layer").style.display = "none";
+    ["ui-layer","dialogue-layer","puzzle-layer","collection-layer","gate-layer","custom-modal-layer","feedback-layer","hint-overlay"].forEach(id=>{
+      document.getElementById(id).style.display = "none";
+    });
+    document.getElementById("global-back").style.display = "none";
+
+    this.practiceMode = false;       // not inside a puzzle yet
+    this.practiceSceneIndex = null;
+
+    this.buildPuzzleSelect();
+    document.getElementById("puzzle-select-layer").style.display = "flex";
+    document.getElementById("bg-layer").style.backgroundImage = `url('${IMG.uni}')`;
+  },
+
+  hidePuzzleSelect(){
+    document.getElementById("puzzle-select-layer").style.display = "none";
+    document.getElementById("start-layer").style.display = "flex";
+    document.getElementById("bg-layer").style.display = "block";
+  },
+
+  buildPuzzleSelect(){
+    const list = document.getElementById("puzzle-select-list");
+    list.innerHTML = "";
+
+    for(let i=0;i<SCENES.length;i++){
+      const s = SCENES[i];
+      if(s.type !== "puzzle") continue;
+
+      const row = document.createElement("div");
+      row.className = "puzzle-item";
+      row.innerHTML = `
+        <div class="left">
+          <div class="p-title">${s.title}</div>
+          <div class="p-desc">${s.text}</div>
+        </div>
+        <div class="tag">PLAY</div>
+      `;
+      row.onclick = () => this.playPuzzlePractice(i);
+      list.appendChild(row);
+    }
+  },
+
+  playPuzzlePractice(sceneIndex){
+    // ✅ Practice puzzle only, never links to story
+    this.practiceMode = true;
+    this.practiceSceneIndex = sceneIndex;
+    this.index = sceneIndex;
+
+    document.getElementById("puzzle-select-layer").style.display = "none";
+    document.getElementById("ui-layer").style.display = "block";
+    document.getElementById("start-layer").style.display = "none";
+
+    this.render();
+  },
+
+  endPracticePuzzle(){
+    // ✅ Always return to puzzle select after practice completion/skip
+    this.practiceMode = false;
+    this.practiceSceneIndex = null;
+
+    document.getElementById("puzzle-layer").style.display = "none";
+    document.getElementById("ui-layer").style.display = "none";
+    document.getElementById("global-back").style.display = "none";
+
+    this.showPuzzleSelect();
+  },
+
+  assignRandomPages(){
+    const candidates = [];
+    for(let i=0;i<SCENES.length;i++){
+      if(SCENES[i].type==="dialogue") candidates.push(i);
+    }
+    const want = Math.min(this.pagesTotal, candidates.length);
+    const chosen = new Set();
+    while(chosen.size < want){
+      chosen.add(candidates[Math.floor(Math.random()*candidates.length)]);
+    }
+    let n = 1;
+    chosen.forEach(sceneIdx=>{
+      this.pageSpawnMap[sceneIdx] = "page"+n;
+      n++;
+    });
+  },
+
+  updatePagesFound(){ document.getElementById("pages-found").innerText = this.collectedPages.size; },
+  updateScore(){ document.getElementById("score").innerText = this.score; },
+
+  render(){
+    const scene = SCENES[this.index];
+    if(!scene){ this.showHome(); return; }
+
+    document.getElementById("bg-layer").style.backgroundImage = `url('${scene.bg || IMG.uni}')`;
+
+    // hide main layers
+    ["collection-layer","dialogue-layer","puzzle-layer","gate-layer"].forEach(id=>{
+      document.getElementById(id).style.display = "none";
+    });
+
+    // hide overlays
+    ["feedback-layer","hint-overlay","custom-modal-layer"].forEach(id=>{
+      document.getElementById(id).style.display = "none";
+    });
+
+    // Back button:
+    // - Story: normal back
+    // - Practice: hide back so they can't jump around the story
+    if(this.practiceMode){
+      document.getElementById("global-back").style.display = "none";
+    } else {
+      document.getElementById("global-back").style.display = (this.index > 0) ? "block" : "none";
+    }
+
+    document.getElementById("hidden-items-container").innerHTML = "";
+
+    if(scene.type === "collection"){
+      document.getElementById("collection-layer").style.display = "block";
+      document.getElementById("coins-found").innerText = this.coinsFound;
+      this.spawnCoins();
+      return;
+    }
+
+    if(scene.type === "gate"){
+      document.getElementById("gate-layer").style.display = "flex";
+      document.getElementById("gate-msg").innerText = scene.msg || "Checkpoint.";
+
+      const costRow = document.getElementById("gate-cost-row");
+      const costEl  = document.getElementById("gate-cost");
+      const btn     = document.getElementById("pay-btn");
+      const alreadyUnlocked = this.unlockedGates.has(this.index);
+
+      if(scene.cost === 0 && scene.itemReq){
+        costRow.style.display = "none";
+        btn.disabled = false;
+        btn.style.background = "var(--theme-green)";
+        btn.innerText = "CONTINUE";
+        btn.onclick = () => this.next();
+        return;
+      }
+
+      if(scene.cost > 0){
+        costRow.style.display = "block";
+        costEl.innerText = scene.cost;
+
+        if(alreadyUnlocked){
+          btn.disabled = false;
+          btn.style.background = "var(--theme-green)";
+          btn.innerText = "CONTINUE";
+          btn.onclick = () => this.next();
+          return;
+        }
+
+        if(this.score >= scene.cost){
+          btn.disabled = false;
+          btn.style.background = "var(--theme-green)";
+          btn.innerText = `PAY ${scene.cost} PICARATS`;
+          btn.onclick = () => {
+            this.score -= scene.cost;
+            this.updateScore();
+            this.unlockedGates.add(this.index);
+            this.next();
+          };
+        }else{
+          btn.disabled = true;
+          btn.style.background = "#555";
+          btn.innerText = "NOT ENOUGH FUNDS";
+          btn.onclick = null;
+        }
+        return;
+      }
+
+      costRow.style.display = "none";
+      btn.disabled = false;
+      btn.style.background = "var(--theme-green)";
+      btn.innerText = "CONTINUE";
+      btn.onclick = () => this.next();
+      return;
+    }
+
+    if(scene.type === "puzzle"){
+      document.getElementById("puzzle-layer").style.display = "flex";
+      document.getElementById("puzzle-title").innerText = scene.title;
+      document.getElementById("puzzle-desc").innerText = scene.text;
+      document.getElementById("puzzle-img").src = scene.img;
+
+      document.getElementById("practice-banner").style.display = this.practiceMode ? "block" : "none";
+
+      this.hintTier = 0;
+      this.puzzleLocked = false;
+      document.getElementById("hint-tier").innerText = "0";
+
+      document.getElementById("hint-btn").disabled = false;
+      document.getElementById("skip-btn").disabled = false;
+
+      const wrap = document.getElementById("puzzle-choices");
+      wrap.innerHTML = "";
+
+      scene.choices.forEach(c=>{
+        const b = document.createElement("div");
+        b.className = "choice-btn";
+        b.innerHTML = `<span>${c.text}</span>`;
+        b.onclick = () => {
+          if(this.puzzleLocked) return;
+
+          if(c.correct){
+            this.puzzleLocked = true;
+
+            // reward only once and only in STORY mode
+            if(!this.practiceMode){
+              const alreadySolved = this.solvedPuzzles.has(this.index);
+              if(!alreadySolved){
+                this.score += 30;
+                this.updateScore();
+              }
+              this.solvedPuzzles.add(this.index);
+            }
+
+            this.showStamp(true, "CORRECT!");
+            setTimeout(() => {
+              this.hideStamp();
+              this.puzzleLocked = false;
+
+              // ✅ KEY FIX: practice mode returns to puzzle select
+              if(this.practiceMode){
+                this.endPracticePuzzle();
+              } else {
+                this.next();
+              }
+            }, 650);
+
+          } else {
+            this.puzzleLocked = true;
+            this.showStamp(false, "WRONG!");
+            setTimeout(() => {
+              this.hideStamp();
+              this.puzzleLocked = false;
+            }, 650);
+          }
+        };
+        wrap.appendChild(b);
+      });
+      return;
+    }
+
+    if(scene.type === "dialogue" || scene.type === "endingCheck" || scene.type === "endingNormal" || scene.type === "endingBest"){
+      document.getElementById("dialogue-layer").style.display = "flex";
+      document.getElementById("speaker").innerText = scene.speaker;
+      this.typewriter(scene.text);
+
+      if(scene.type === "dialogue"){
+        const pageId = this.pageSpawnMap[this.index];
+        if(pageId && !this.collectedPages.has(pageId)){
+          const page = document.createElement("div");
+          page.className = "coin";
+          page.textContent = "📜";
+          page.style.pointerEvents = "auto";
+          page.style.left = rand(8, 88) + "%";
+          page.style.top  = rand(20, 75) + "%";
+
+          page.onclick = (e) => {
+            e.stopPropagation();
+            page.classList.add("collected");
+            this.collectedPages.add(pageId);
+            this.updatePagesFound();
+          };
+
+          document.getElementById("hidden-items-container").appendChild(page);
+        }
+      }
+      return;
+    }
+  },
+
+  showStamp(isCorrect, text){
+    const layer = document.getElementById("feedback-layer");
+    const box = document.getElementById("stamp-box");
+    const t = document.getElementById("stamp-text");
+
+    t.innerText = text || (isCorrect ? "CORRECT!" : "WRONG!");
+    box.classList.remove("correct","wrong");
+    box.classList.add(isCorrect ? "correct" : "wrong");
+    layer.style.display = "flex";
+  },
+
+  hideStamp(){ document.getElementById("feedback-layer").style.display = "none"; },
+
+  showHint(){
+    const scene = SCENES[this.index];
+    if(!scene || scene.type !== "puzzle") return;
+
+    const hints = scene.hints || [];
+    const tier = Math.min(this.hintTier, hints.length - 1);
+
+    document.getElementById("hint-text").innerText = hints[tier] || "No hints available yet.";
+    document.getElementById("hint-overlay").style.display = "flex";
+
+    const shown = Math.min(this.hintTier + 1, 3);
+    document.getElementById("hint-tier").innerText = String(shown);
+
+    if(this.hintTier < 2) this.hintTier++;
+  },
+
+  closeHint(){ document.getElementById("hint-overlay").style.display = "none"; },
+
+  skipPuzzle(){
+    const scene = SCENES[this.index];
+    if(!scene || scene.type !== "puzzle") return;
+
+    this.showStamp(true, "SKIPPED");
+    setTimeout(() => {
+      this.hideStamp();
+
+      // ✅ KEY FIX: practice mode returns to puzzle select, not story
+      if(this.practiceMode){
+        this.endPracticePuzzle();
+      } else {
+        this.next();
+      }
+    }, 500);
+  },
+
+  spawnCoins(){
+    const container = document.getElementById("collection-layer");
+    [...container.querySelectorAll(".coin")].forEach(c=>c.remove());
+    document.getElementById("coins-found").innerText = this.coinsFound;
+
+    for(let i=0;i<5;i++){
+      const coin = document.createElement("div");
+      coin.className = "coin";
+      coin.textContent = "🪙";
+      coin.style.left = rand(5, 92) + "%";
+      coin.style.top  = rand(20, 75) + "%";
+
+      coin.onclick = (e) => {
+        e.stopPropagation();
+        if(coin.classList.contains("collected")) return;
+
+        coin.classList.add("collected");
+        this.score += 10;
+        this.coinsFound++;
+        this.updateScore();
+        document.getElementById("coins-found").innerText = this.coinsFound;
+
+        if(this.coinsFound >= 5){
+          setTimeout(()=>this.next(), 600);
+        }
+      };
+      container.appendChild(coin);
+    }
+  },
+
+  prev(){
+    // prevent backtracking while in practice mode
+    if(this.practiceMode) return;
+
+    if(this.index > 0){
+      this.index--;
+      this.render();
+    }
+  },
+
+  next(){
+    // practice mode must never call next
+    if(this.practiceMode) return;
+
+    const current = SCENES[this.index];
+
+    if(current && current.type === "endingCheck"){
+      const gotAll = (this.collectedPages.size >= this.pagesTotal);
+      this.index = gotAll ? (SCENES.length - 1) : (SCENES.length - 2);
+      this.render();
+      return;
+    }
+
+    if(current && (current.type === "endingNormal" || current.type === "endingBest")){
+      if(this.endingPromptActive) return;
+      this.endingPromptActive = true;
+
+      const gotAll = (this.collectedPages.size >= this.pagesTotal);
+      const title = gotAll ? "Ending reached (Best Ending)." : "Ending reached.";
+
+      this.showModal(
+        `${title} Do you want to go back and search for missing pages?`,
+        true,
+        () => {
+          this.endingPromptActive = false;
+          this.index = Math.max(0, this.index - 4);
+          this.render();
+        },
+        () => {
+          this.endingPromptActive = false;
+          this.showHome();
+        }
+      );
+      return;
+    }
+
+    this.index++;
+    if(this.index >= SCENES.length){
+      this.showHome();
+      return;
+    }
+    this.render();
+  },
+
+  typewriter(text){
+    const el = document.getElementById("text");
+    if(this.typingTimer) clearTimeout(this.typingTimer);
+    el.textContent = "";
+    let i = 0;
+    const speed = 18;
+
+    const tick = () => {
+      if(i < text.length){
+        el.textContent += text.charAt(i++);
+        this.typingTimer = setTimeout(tick, speed);
+      }
+    };
+    tick();
+  },
+
+  showModal(text, isConfirm, onYes, onNo){
+    const layer = document.getElementById("custom-modal-layer");
+    const msg = document.getElementById("custom-modal-text");
+    const yes = document.getElementById("custom-modal-yes");
+    const no  = document.getElementById("custom-modal-no");
+
+    msg.innerText = text;
+    layer.style.display = "flex";
+
+    if(!isConfirm){
+      yes.style.display = "none";
+      no.innerText = "OK";
+      no.onclick = () => {
+        layer.style.display="none";
+        no.innerText="NO";
+        yes.style.display="inline-block";
+      };
+      return;
+    }
+
+    yes.style.display = "inline-block";
+    no.innerText = "NO";
+
+    yes.onclick = () => {
+      layer.style.display="none";
+      if(onYes) onYes();
+    };
+
+    no.onclick = () => {
+      layer.style.display="none";
+      if(onNo) onNo();
+    };
+  }
+};
+
+window.onload = () => {
+  document.getElementById("start-layer").style.display = "flex";
+  document.getElementById("bg-layer").style.display = "block";
+  document.getElementById("puzzle-select-layer").style.display = "none";
+  document.getElementById("feedback-layer").style.display = "none";
+  document.getElementById("hint-overlay").style.display = "none";
+};
+</script>
+</body>
+</html>
