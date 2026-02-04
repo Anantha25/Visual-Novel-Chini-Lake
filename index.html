@@ -27,15 +27,24 @@
       margin: 0;
       padding: 0;
       background-color: #1a1a1a;
+      width: 100vw;
       height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: "Crimson Text", serif;
       overflow: hidden;
+      font-family: "Crimson Text", serif;
       user-select: none;
     }
 
+    /* --- VIEWPORT WRAPPER --- */
+    #viewport {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* --- FIXED 16:9 GAME --- */
     #game-container {
       width: 1920px;
       height: 1080px;
@@ -45,6 +54,7 @@
       border-radius: 12px;
       box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
       overflow: hidden;
+      transform-origin: center;
     }
 
     .layer { position: absolute; inset: 0; }
@@ -53,7 +63,7 @@
     #start-layer {
       z-index: 50;
       background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)),
-        url("https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1280&auto=format&fit=crop");
+        url("Assets/Image 1.png"); /* Using UKM image as default BG for start if valid */
       background-size: cover;
       background-position: center;
       display: flex;
@@ -557,6 +567,7 @@
 </head>
 
 <body>
+ <div id="viewport">
   <div id="game-container">
 
     <!-- START -->
@@ -703,22 +714,35 @@
       </div>
     </div>
   </div>
+ </div>
 
 <script>
+
 /* --- ASSETS --- */
 const IMG = {
-  uni: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1280&auto=format&fit=crop",
-  packing: "https://images.unsplash.com/photo-1553531384-cc64ac80f931?q=80&w=1280&auto=format&fit=crop",
-  highway: "https://images.unsplash.com/photo-1470290374250-802c1272733d?q=80&w=1280&auto=format&fit=crop",
-  resort: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1280&auto=format&fit=crop",
-  morning: "https://images.unsplash.com/photo-1493770348161-369560ae357d?q=80&w=1280&auto=format&fit=crop",
-  boat: "https://images.unsplash.com/photo-1544550581-5f7ceaf7f992?q=80&w=1280&auto=format&fit=crop",
-  lotus: "https://images.unsplash.com/photo-1512782782330-c322798544ba?q=80&w=1280&auto=format&fit=crop",
-  jungle: "https://images.unsplash.com/photo-1448375240586-dfd8d395ea6c?q=80&w=1280&auto=format&fit=crop",
-  puz_items: "https://images.unsplash.com/photo-1584208124888-3a20b9c799e2?q=80&w=1280&auto=format&fit=crop",
-  puz_bus: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1280&auto=format&fit=crop",
-  puz_engine: "https://images.unsplash.com/photo-1619641249780-25272a2753a8?q=80&w=1280&auto=format&fit=crop",
-  puz_path: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1280&auto=format&fit=crop"
+  uni: "Assets/Image 1.png",
+  highway: "Assets/Image 2.png",
+  resort: "Assets/Image 3.png",
+  village: "Assets/Image 4.png",
+  morning: "Assets/Image 5.png",
+  lotus: "Assets/Image 6.png",
+  jungle: "Assets/Image 7.png",
+  packing: "Assets/Image 8.png",
+  boat: "Assets/Image 14.png",
+  
+  puz_items: "Assets/Image 8.png",
+  puz_bus: "Assets/Image 9.png",
+  puz_compass: "Assets/Image 10.png",
+  puz_tech: "Assets/Image 11.png",
+  puz_weave: "Assets/Image 12.png",
+  puz_blowpipe: "Assets/Image 13.png",
+  puz_engine: "Assets/Image 15.png",
+  puz_path: "Assets/Image 16.png",
+  puz_tapir: "Assets/Image 17.png",
+  puz_lake: "Assets/Image 18.png",
+  puz_formation: "Assets/Image 19.png",
+  puz_math: "Assets/Image 20.png",
+  puz_schedule: "Assets/Image 20.png"
 };
 
 /* --- STORY (20 PUZZLES + HINTS + 2 ENDINGS) --- */
@@ -887,6 +911,26 @@ const SCENES = [
   { type: "endingBest", speaker: "Scholar", text: "Best Ending! You recovered all journal pages. Your complete field log will help protect Tasik Chini for future researchers.", bg: IMG.uni }
 ];
 
+/* --- RESPONSIVE SCALE-TO-FIT --- */
+function fitToScreen(){
+  const baseW = 1920;
+  const baseH = 1080;
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  const scale = Math.min(vw / baseW, vh / baseH);
+
+  const gc = document.getElementById("game-container");
+  if(!gc) return;
+
+  gc.style.transform = `scale(${scale})`;
+}
+
+window.addEventListener("resize", () => {
+  fitToScreen();
+});
+
 function rand(min, max){ return Math.random()*(max-min)+min; }
 
 const game = {
@@ -968,7 +1012,7 @@ const game = {
     });
     document.getElementById("global-back").style.display = "none";
 
-    this.practiceMode = false;       // not inside a puzzle yet
+    this.practiceMode = false;        // not inside a puzzle yet
     this.practiceSceneIndex = null;
 
     this.buildPuzzleSelect();
@@ -1418,6 +1462,8 @@ const game = {
 };
 
 window.onload = () => {
+  fitToScreen();
+  
   document.getElementById("start-layer").style.display = "flex";
   document.getElementById("bg-layer").style.display = "block";
   document.getElementById("puzzle-select-layer").style.display = "none";
