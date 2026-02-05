@@ -563,12 +563,23 @@
       min-width: 120px;
     }
     .modal-btn:hover { background: var(--theme-gold); }
+
+    /* Mute Button Styles */
+    #mute-btn {
+      position: absolute; top: 100px; right: 20px; z-index: 200;
+      background: rgba(0,0,0,0.5); border: 2px solid white; color: white;
+      border-radius: 50%; width: 50px; height: 50px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+      pointer-events: auto;
+    }
+    #mute-btn:hover { background: rgba(255,255,255,0.2); }
   </style>
 </head>
 
 <body>
  <div id="viewport">
   <div id="game-container">
+    <div id="mute-btn" onclick="audioManager.toggleMute()"><i class="fa-solid fa-volume-high"></i></div>
 
     <!-- START -->
     <div id="start-layer" class="layer">
@@ -681,6 +692,10 @@
           <div id="practice-banner" style="display:none; margin-top:14px; font-family:'Cinzel',serif; font-size:1.05rem; color:#2d1b15;">
             Practice Mode: finishing returns to Puzzle Select.
           </div>
+
+          <div style="margin-top:12px; font-size:1.05rem; opacity:0.9;">
+            Hint costs: 10 / 15 / 20 • Skip cost: 50
+          </div>
         </div>
       </div>
     </div>
@@ -717,12 +732,12 @@
  </div>
 
 <script>
-/* --- ASSETS --- */
+/* --- Assets --- */
 const IMG = {
   uni: "Assets/Image 1.png",
   highway: "Assets/Image 2.png",
   resort: "Assets/Image 3.png",
-  village: "Assets/Image 4.png",   
+  village: "Assets/Image 4.png",
   morning: "Assets/Image 5.png",
   lotus: "Assets/Image 6.png",
   jungle: "Assets/Image 7.png",
@@ -733,8 +748,8 @@ const IMG = {
   wildlife: "Assets/Image 28.png",
   gate: "Assets/Image 29.png",
   bioexit: "Assets/Image 30.png",
+  lakeripple: "Assets/Image 19.png",
 
-  
   puz_notebook: "Assets/Image 8.png",
   puz_gel: "Assets/Image 33.png",
   puz_bus: "Assets/Image 9.png",
@@ -748,20 +763,105 @@ const IMG = {
   puz_path: "Assets/Image 16.png",
   puz_tapir: "Assets/Image 17.png",
   puz_lake: "Assets/Image 18.png",
-  puz_formation: "Assets/Image 19.png",
   puz_math: "Assets/Image 20.png",
-  puz_items:"Assets/Image 23.png",
-  puz_glass:"Assets/Image 24.png",
-  puz_cleanboot:"Assets/Image 25.png",
-  puz_torchlight:"Assets/Image 31.png",
-  puz_lifejacket:"Assets/Image 36.png",
-  puz_rinse:"Assets/Image 37.png",
-  puz_premission:"Assets/Image 38.png",
-  puz_observe:"Assets/Image 39.png",
-  puz_wash:"Assets/Image 40.png",
+  puz_items: "Assets/Image 23.png",
+  puz_glass: "Assets/Image 24.png",
+  puz_cleanboot: "Assets/Image 25.png",
+  puz_torchlight: "Assets/Image 31.png",
+  puz_lifejacket: "Assets/Image 36.png",
+  puz_rinse: "Assets/Image 37.png",
+  puz_premission: "Assets/Image 38.png",
+  puz_observe: "Assets/Image 39.png",
+  puz_wash: "Assets/Image 40.png",
 };
 
-/* --- STORY (20 PUZZLES + HINTS + 2 ENDINGS) --- */
+/* --- Audio --- */
+const audioManager = {
+  muted: false,
+  bgmStory: new Audio('Audio/story.mp3'),
+  bgmPuzzle: new Audio('Audio/puzzle.mp3'),
+  sfxCorrect: new Audio('Audio/correct.mp3'),
+  sfxWrong: new Audio('Audio/wrong.mp3'),
+  sfxCoin: new Audio('Audio/coin.mp3'),
+  sfxPage: new Audio('Audio/page.mp3'),
+  sfxClick: new Audio('Audio/click.mp3'),
+
+  currentTrack: null,
+  pageTimeout: null,
+
+  init() {
+    this.bgmStory.loop = true;
+    this.bgmPuzzle.loop = true;
+    this.bgmStory.volume = 0.3;
+    this.bgmPuzzle.volume = 0.3;
+    // preload
+    [this.bgmStory, this.bgmPuzzle, this.sfxCorrect, this.sfxWrong, this.sfxCoin, this.sfxPage, this.sfxClick]
+      .forEach(a => { try { a.load(); } catch(e){} });
+  },
+
+  playBGM(type) {
+    if (this.muted) return;
+    const newTrack = (type === 'puzzle') ? this.bgmPuzzle : this.bgmStory;
+    if (this.currentTrack === newTrack && !newTrack.paused) return;
+
+    this.bgmStory.pause();
+    this.bgmPuzzle.pause();
+
+    this.currentTrack = newTrack;
+    try { this.currentTrack.currentTime = 0; } catch(e){}
+
+    const p = this.currentTrack.play();
+    if (p) p.catch(err => console.warn("Audio play blocked:", err));
+  },
+
+  playSFX(name) {
+    if (this.muted) return;
+
+    let sound = null;
+    switch (name) {
+      case 'correct': sound = this.sfxCorrect; break;
+      case 'wrong': sound = this.sfxWrong; break;
+      case 'coin': sound = this.sfxCoin; break;
+      case 'page': sound = this.sfxPage; break;
+      case 'click': sound = this.sfxClick; break;
+      default: return;
+    }
+
+    // Clone to ensure repeated plays always work (fixes "wrong" often not playing)
+    const s = sound.cloneNode(true);
+    s.muted = this.muted;
+    s.volume = sound.volume ?? 1;
+
+    if (name === 'page') {
+      if (this.pageTimeout) clearTimeout(this.pageTimeout);
+      this.pageTimeout = setTimeout(() => {
+        try { s.pause(); s.currentTime = 0; } catch(e){}
+      }, 1000);
+    }
+
+    s.play().catch(e => console.warn("SFX failed", e));
+  },
+
+  toggleMute() {
+    this.muted = !this.muted;
+
+    // Apply mute state to base audio elements (clones inherit in playSFX)
+    [this.bgmStory, this.bgmPuzzle, this.sfxCorrect, this.sfxWrong, this.sfxCoin, this.sfxPage, this.sfxClick]
+      .forEach(a => a.muted = this.muted);
+
+    const btn = document.getElementById('mute-btn');
+    if (this.muted) {
+      if (this.currentTrack) this.currentTrack.pause();
+      btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+    } else {
+      btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+      if (this.currentTrack) this.currentTrack.play().catch(()=>{});
+      this.playSFX('click');
+    }
+  }
+};
+
+/* --- Story + Puzzle + Hints + Endings --- */
 const SCENES = [
   { type: "collection", text: "Collect 5 Coins to fund your trip!", bg: IMG.uni },
   { type: "dialogue", speaker: "Scholar", text: "We have funds! 2:00 PM. UKM. The sun beats down on the pavement.", bg: IMG.uni },
@@ -788,7 +888,7 @@ const SCENES = [
     choices: [{ text: "Silica gel packets", correct:true },{ text: "Paper tissues", correct:false },{ text: "Extra shoelaces", correct:false }]
   },
 
-  { type: "dialogue", speaker: "Scholar", text: "We must plan ethically—and also respect the people who live near the lake.", bg: IMG.village },
+  { type: "dialogue", speaker: "Scholar", text: "We must plan ethically—and also respect the people who live near the lake.", bg: IMG.uni },
 
   /* Puzzle 004 */
   { type: "puzzle", title: "004: Indigenous Tools & Respect", text: "A traditional blowpipe is displayed in the village. What is the most respectful action?", img: IMG.puz_blowpipe,
@@ -800,7 +900,7 @@ const SCENES = [
     ]
   },
 
-  /* Gate uses gate image */
+  /* Gate Image */
   { type: "gate", title: "Bus Fare", cost: 10, msg: "Pay the driver to board the bus.", bg: IMG.gate },
   { type: "dialogue", speaker: "Dr. Zurina", text: "Good. Help load the bus. There is a safe order so nothing breaks.", bg: IMG.uni },
 
@@ -832,7 +932,7 @@ const SCENES = [
     ]
   },
 
-  /* Gate: use gate bg instead of resort */
+  /* Gate Image */
   { type: "gate", title: "Check-In", cost: 0, itemReq: "optional", msg: "Reception checks your travel log (Optional for best ending).", bg: IMG.gate },
   { type: "dialogue", speaker: "Narrator", text: "(10:00 PM: Arrival. The air is thick with humidity.)", bg: IMG.resort },
   { type: "dialogue", speaker: "Scholar", text: "Before sleep, we should back up today’s notes.", bg: IMG.resort },
@@ -851,7 +951,7 @@ const SCENES = [
     choices: [{ text: "Clear sky and calm water", correct:false },{ text: "Thunderclouds and strong wind", correct:true },{ text: "Warm temperature", correct:false }]
   },
 
-  /* Gate uses gate bg */
+  /* Gate Image*/
   { type: "gate", title: "Boat Ticket", cost: 30, msg: "Pay for the boat rental to cross the lake.", bg: IMG.gate },
   { type: "dialogue", speaker: "Scholar", text: "Day 3, 7:00 AM. The Jetty. Safety first.", bg: IMG.boat },
 
@@ -870,7 +970,7 @@ const SCENES = [
   },
 
   { type: "dialogue", speaker: "Narrator", text: "(The engine roars. We glide out onto the lake.)", bg: IMG.lakeview },
-  { type: "dialogue", speaker: "Scholar", text: "This lake has is known for it's Mythogical.", bg: IMG.lotus },
+  { type: "dialogue", speaker: "Scholar", text: "This lake is steeped in mythology and local legend", bg: IMG.lakeripple },
 
   /* Puzzle 012 */
   { type: "puzzle", title: "012: The Serpent's Lodging", text: "I guard the lake. My name starts with 'N'.", img: IMG.puz_lake,
@@ -961,22 +1061,18 @@ const SCENES = [
 function fitToScreen(){
   const baseW = 1920;
   const baseH = 1080;
-
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-
   const scale = Math.min(vw / baseW, vh / baseH);
-
   const gc = document.getElementById("game-container");
   if(!gc) return;
-
   gc.style.transform = `scale(${scale})`;
 }
 window.addEventListener("resize", fitToScreen);
 function rand(min, max){ return Math.random()*(max-min)+min; }
 
 function shuffleArray(arr){
-  const a = arr.slice(); // copy, do NOT mutate original
+  const a = arr.slice();
   for(let i = a.length - 1; i > 0; i--){
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
@@ -986,7 +1082,7 @@ function shuffleArray(arr){
 
 const game = {
   index: 0,
-  score: 50,
+  score: 0,          // ✅ start at 0 (collect 5 coins => 50)
   coinsFound: 0,
   typingTimer: null,
 
@@ -1005,9 +1101,18 @@ const game = {
   puzzleLocked: false,
   endingPromptActive: false,
 
+  // ✅ Costs
+  hintCosts: [10, 15, 20],
+  skipCost: 50,
+
   startGame(){
+    // init audio + unlock best effort
+    audioManager.init();
+    // play a click on start to "unlock" audio on user gesture
+    audioManager.playSFX('click');
+
     this.index = 0;
-    this.score = 50;
+    this.score = 0;     // ✅ start 0
     this.coinsFound = 0;
 
     this.collectedPages.clear();
@@ -1142,6 +1247,12 @@ const game = {
     const scene = SCENES[this.index];
     if(!scene){ this.showHome(); return; }
 
+    if (scene.type === "puzzle") {
+      audioManager.playBGM('puzzle');
+    } else {
+      audioManager.playBGM('story');
+    }
+
     document.getElementById("bg-layer").style.backgroundImage = `url('${scene.bg || IMG.uni}')`;
 
     ["collection-layer","dialogue-layer","puzzle-layer","gate-layer"].forEach(id=>{
@@ -1250,6 +1361,7 @@ const game = {
 
           if(c.correct){
             this.puzzleLocked = true;
+            audioManager.playSFX('correct');
 
             if(!this.practiceMode){
               const alreadySolved = this.solvedPuzzles.has(this.index);
@@ -1274,6 +1386,8 @@ const game = {
 
           } else {
             this.puzzleLocked = true;
+            audioManager.playSFX('wrong'); // ✅ now reliable (clone)
+
             this.showStamp(false, "WRONG!");
             setTimeout(() => {
               this.hideStamp();
@@ -1303,6 +1417,8 @@ const game = {
 
           page.onclick = (e) => {
             e.stopPropagation();
+            audioManager.playSFX('page');
+
             page.classList.add("collected");
             this.collectedPages.add(pageId);
             this.updatePagesFound();
@@ -1329,26 +1445,56 @@ const game = {
   hideStamp(){ document.getElementById("feedback-layer").style.display = "none"; },
 
   showHint(){
+    audioManager.playSFX('click');
+
     const scene = SCENES[this.index];
     if(!scene || scene.type !== "puzzle") return;
 
     const hints = scene.hints || [];
-    const tier = Math.min(this.hintTier, hints.length - 1);
+    if(!hints.length) return;
 
-    document.getElementById("hint-text").innerText = hints[tier] || "No hints available yet.";
+    // already max tier -> just show last without charging
+    if(this.hintTier >= 3){
+      document.getElementById("hint-text").innerText = hints[hints.length - 1];
+      document.getElementById("hint-overlay").style.display = "flex";
+      return;
+    }
+
+    const cost = this.hintCosts[this.hintTier] ?? 5;
+
+    if(!this.practiceMode){
+      if(this.score < cost){
+        this.showModal(`Not enough Picarats for a hint (need ${cost}).`, false);
+        return;
+      }
+      this.score -= cost;
+      this.updateScore();
+    }
+
+    const tierIndex = Math.min(this.hintTier, hints.length - 1);
+    document.getElementById("hint-text").innerText = hints[tierIndex] || "No hints available yet.";
     document.getElementById("hint-overlay").style.display = "flex";
 
-    const shown = Math.min(this.hintTier + 1, 3);
-    document.getElementById("hint-tier").innerText = String(shown);
-
-    if(this.hintTier < 2) this.hintTier++;
+    this.hintTier++;
+    document.getElementById("hint-tier").innerText = String(this.hintTier);
   },
 
   closeHint(){ document.getElementById("hint-overlay").style.display = "none"; },
 
   skipPuzzle(){
+    audioManager.playSFX('click');
+
     const scene = SCENES[this.index];
     if(!scene || scene.type !== "puzzle") return;
+
+    if(!this.practiceMode){
+      if(this.score < this.skipCost){
+        this.showModal(`Not enough Picarats to skip (need ${this.skipCost}).`, false);
+        return;
+      }
+      this.score -= this.skipCost;
+      this.updateScore();
+    }
 
     this.showStamp(true, "SKIPPED");
     setTimeout(() => {
@@ -1376,6 +1522,8 @@ const game = {
       coin.onclick = (e) => {
         e.stopPropagation();
         if(coin.classList.contains("collected")) return;
+
+        audioManager.playSFX('coin');
 
         coin.classList.add("collected");
         this.score += 10;
@@ -1441,7 +1589,6 @@ const game = {
     }
     this.render();
   },
-  
 
   typewriter(text){
     const el = document.getElementById("text");
@@ -1496,6 +1643,7 @@ const game = {
 
 window.onload = () => {
   fitToScreen();
+  audioManager.init(); // ✅ ensure audio is initialized
 
   document.getElementById("start-layer").style.display = "flex";
   document.getElementById("bg-layer").style.display = "block";
