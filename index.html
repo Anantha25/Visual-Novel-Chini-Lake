@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Mystery of the Chini Biosphere (Ultimate Edition)</title>
+  <title>The Mystery of the Tasik Chini Biosphere</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -162,7 +162,6 @@
       background-size: cover;
       background-position: center;
       filter: brightness(0.9);
-      transition: background-image 0.5s ease-in-out;
     }
 
     /* --- UI BAR --- */
@@ -207,16 +206,61 @@
     }
     .coin {
       position: absolute;
-      font-size: 3rem;
-      filter: drop-shadow(0 0 15px white);
-      cursor: pointer;
-      transition: transform 0.2s, opacity 0.3s;
-      animation: float 2s infinite ease-in-out;
-      user-select: none;
+	  width: 80px;
+	  height: 80px;
+	  
+	  background-image: url("Assets/Image 22.png");
+	  background-size: contain;
+	  background-repeat: no-repeat;
+	  background-position: center;
+	  
+	  cursor: pointer;
+	  transition: transform 0.25s ease, opacity 0.3s ease;
+	  animation: float 2s infinite ease-in-out;
+
+	  user-select: none;
     }
-    .coin:hover { transform: scale(1.3); }
-    .coin.collected { transform: scale(2); opacity: 0; pointer-events: none; }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .coin:hover {
+	  transform: scale(1.25) rotate(-5deg);
+	}
+    .coin.collected {
+	  transform: scale(1.8);
+	  opacity: 0;
+	  pointer-events: none;
+	}
+
+	.page-item {
+	  position: absolute;
+	  width: 200px;
+	  height: 120px;
+
+	  background-image: url("Assets/Image 21.png");
+	  background-size: contain;
+	  background-repeat: no-repeat;
+	  background-position: center;
+
+	  cursor: pointer;
+	  transition: transform 0.25s ease, opacity 0.3s ease;
+	  animation: float 3s infinite ease-in-out;
+
+	  filter: drop-shadow(0 0 10px rgba(255, 235, 160, 0.8));
+	  user-select: none;
+	}
+
+	.page-item:hover {
+	  transform: scale(1.15);
+	}
+
+	.page-item.collected {
+	  transform: scale(1.6);
+	  opacity: 0;
+	  pointer-events: none;
+	}
+ 
+   @keyframes float {
+     0%, 100% { transform: translateY(0); }
+     50%      { transform: translateY(-10px); }
+	}
 
     /* --- GATE --- */
     #gate-layer {
@@ -584,7 +628,7 @@
     <!-- START -->
     <div id="start-layer" class="layer">
       <div class="title-group">
-        <h1 class="main-title">The Mystery of the<br />Chini Biosphere</h1>
+        <h1 class="main-title">The Mystery of the<br />Tasik Chini Biosphere</h1>
         <div class="subtitle">An Expanded Educational Expedition</div>
       </div>
       <div class="menu-container">
@@ -1082,8 +1126,9 @@ function shuffleArray(arr){
 
 const game = {
   index: 0,
-  score: 0,          // ✅ start at 0 (collect 5 coins => 50)
+  score: 0,          
   coinsFound: 0,
+  collectionComplete: false,
   typingTimer: null,
 
   pagesTotal: 5,
@@ -1100,8 +1145,14 @@ const game = {
   hintTier: 0,
   puzzleLocked: false,
   endingPromptActive: false,
+  
+  inputLocked: false,
+  lockInput(ms = 300){
+    this.inputLocked = true;
+    setTimeout(() => (this.inputLocked = false), ms);
+  },
 
-  // ✅ Costs
+  
   hintCosts: [10, 15, 20],
   skipCost: 50,
 
@@ -1112,8 +1163,9 @@ const game = {
     audioManager.playSFX('click');
 
     this.index = 0;
-    this.score = 0;     // ✅ start 0
+    this.score = 0;
     this.coinsFound = 0;
+	this.collectionComplete = false;
 
     this.collectedPages.clear();
     this.pageSpawnMap = {};
@@ -1244,7 +1296,8 @@ const game = {
   updateScore(){ document.getElementById("score").innerText = this.score; },
 
   render(){
-    const scene = SCENES[this.index];
+    console.log("RENDER", { index: this.index, type: SCENES[this.index]?.type, score: this.score, mode: this.practiceMode ? "practice" : "story" });
+	const scene = SCENES[this.index];
     if(!scene){ this.showHome(); return; }
 
     if (scene.type === "puzzle") {
@@ -1380,13 +1433,15 @@ const game = {
               if(this.practiceMode){
                 this.endPracticePuzzle();
               } else {
-                this.next();
+                console.log("COMPLETE PUZZLE", { index: this.index, type: SCENES[this.index]?.type, score: this.score, mode: this.practiceMode ? "practice" : "story" });
+				this.lockInput(900);
+				this.next(true);
               }
             }, 650);
 
           } else {
             this.puzzleLocked = true;
-            audioManager.playSFX('wrong'); // ✅ now reliable (clone)
+            audioManager.playSFX('wrong');
 
             this.showStamp(false, "WRONG!");
             setTimeout(() => {
@@ -1410,7 +1465,7 @@ const game = {
         if(pageId && !this.collectedPages.has(pageId)){
           const page = document.createElement("div");
           page.className = "coin";
-          page.textContent = "📜";
+          page.className = "page-item";
           page.style.pointerEvents = "auto";
           page.style.left = rand(8, 88) + "%";
           page.style.top  = rand(20, 75) + "%";
@@ -1502,44 +1557,49 @@ const game = {
       if(this.practiceMode){
         this.endPracticePuzzle();
       } else {
-        this.next();
+        this.lockInput(900);
+		this.next(true);
       }
     }, 500);
   },
 
   spawnCoins(){
     const container = document.getElementById("collection-layer");
-    [...container.querySelectorAll(".coin")].forEach(c=>c.remove());
+    [...container.querySelectorAll(".coin")].forEach(c => c.remove());
     document.getElementById("coins-found").innerText = this.coinsFound;
 
-    for(let i=0;i<5;i++){
+    for(let i = 0; i < 5; i++){
       const coin = document.createElement("div");
       coin.className = "coin";
-      coin.textContent = "🪙";
       coin.style.left = rand(5, 92) + "%";
       coin.style.top  = rand(20, 75) + "%";
 
       coin.onclick = (e) => {
         e.stopPropagation();
-        if(coin.classList.contains("collected")) return;
+		if(coin.classList.contains("collected")) return;
 
-        audioManager.playSFX('coin');
+		audioManager.playSFX('coin');
 
-        coin.classList.add("collected");
-        this.score += 10;
-        this.coinsFound++;
-        this.updateScore();
-        document.getElementById("coins-found").innerText = this.coinsFound;
+		coin.classList.add("collected");
+		coin.style.filter = "drop-shadow(0 0 25px gold)";
 
-        if(this.coinsFound >= 5){
-          setTimeout(()=>this.next(), 600);
-        }
+		this.score += 10;
+		this.coinsFound++;
+		this.updateScore();
+		document.getElementById("coins-found").innerText = this.coinsFound;
+
+		if(this.coinsFound >= 5 && !this.collectionComplete){
+		  this.collectionComplete = true;
+		  this.lockInput(900);
+		  setTimeout(() => this.next(true), 600);
+		}
       };
+
       container.appendChild(coin);
     }
   },
-
   prev(){
+    if(this.inputLocked) return;
     if(this.practiceMode) return;
     if(this.index > 0){
       this.index--;
@@ -1547,7 +1607,8 @@ const game = {
     }
   },
 
-  next(){
+  next(force = false){
+    if(this.inputLocked && !force) return;
     if(this.practiceMode) return;
 
     const current = SCENES[this.index];
@@ -1641,9 +1702,39 @@ const game = {
   }
 };
 
+function preloadImages(){
+  const urls = new Set();
+
+  // all IMG entries
+  Object.values(IMG).forEach(u => urls.add(u));
+
+  // any scene bg/img
+  SCENES.forEach(s => {
+    if (s.bg) urls.add(s.bg);
+    if (s.img) urls.add(s.img);
+  });
+
+  urls.forEach(u => {
+    const im = new Image();
+    im.src = u;
+  });
+}
+
+
 window.onload = () => {
   fitToScreen();
-  audioManager.init(); // ✅ ensure audio is initialized
+  audioManager.init();
+  preloadImages();
+
+  const box = document.querySelector("#dialogue-layer .dialogue-box");
+  if (box) {
+    box.addEventListener("click", (e) => {
+      if (game.inputLocked) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    }, true); // capture phase
+  }
 
   document.getElementById("start-layer").style.display = "flex";
   document.getElementById("bg-layer").style.display = "block";
@@ -1651,6 +1742,7 @@ window.onload = () => {
   document.getElementById("feedback-layer").style.display = "none";
   document.getElementById("hint-overlay").style.display = "none";
 };
+
 </script>
 </body>
 </html>
